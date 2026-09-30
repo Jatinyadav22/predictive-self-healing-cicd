@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 
 from src.api.repository import router as repository_router
+from src.api.search import router as search_router
 
 app = FastAPI(
     title="Predictive & Explainable Self-Healing CI/CD",
@@ -18,3 +19,4 @@ def health_check():
 
 
 app.include_router(repository_router)
+app.include_router(search_router)

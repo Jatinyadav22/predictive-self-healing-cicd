@@ -26,3 +26,9 @@ def test_code_search_respects_max_results():
     results = search_code(index, "repository", max_results=2)
 
     assert len(results) <= 2
+
+
+def test_empty_semantic_query_returns_empty_results():
+    from src.services.semantic_code_search import semantic_search
+
+    assert semantic_search(".", "") == []
