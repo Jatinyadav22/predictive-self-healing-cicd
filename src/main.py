@@ -22,3 +22,16 @@ def health_check():
 app.include_router(repository_router)
 app.include_router(search_router)
 app.include_router(qa_router)
+
+
+from fastapi.staticfiles import StaticFiles
+
+app.mount("/static", StaticFiles(directory="src/static"), name="static")
+
+
+from fastapi.responses import FileResponse
+
+
+@app.get("/")
+def dashboard():
+    return FileResponse("src/static/index.html")

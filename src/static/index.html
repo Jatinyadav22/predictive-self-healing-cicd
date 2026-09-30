@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI DevOps Intelligence</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+    <header class="header">
+        <div>
+            <h1>AI DevOps Intelligence</h1>
+            <p>Predictive & Explainable Self-Healing CI/CD</p>
+        </div>
+        <div id="health-status" class="status">Checking system...</div>
+    </header>
+
+    <main class="container">
+
+        <section class="card">
+            <h2>Semantic Code Search</h2>
+            <p>Search the repository using natural language.</p>
+
+            <div class="input-row">
+                <input
+                    id="search-query"
+                    type="text"
+                    placeholder="e.g. Where is repository scanning implemented?"
+                >
+                <button onclick="semanticSearch()">Search</button>
+            </div>
+
+            <div id="search-results"></div>
+        </section>
+
+        <section class="card">
+            <h2>AI Code Q&A</h2>
+            <p>Ask questions about the repository and receive an AI-generated explanation.</p>
+
+            <textarea
+                id="qa-question"
+                rows="4"
+                placeholder="e.g. What does the repository scanner do?"
+            ></textarea>
+
+            <button onclick="askQuestion()">Ask AI</button>
+
+            <div id="qa-results"></div>
+        </section>
+
+    </main>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
