@@ -49,6 +49,34 @@
             <div id="qa-results"></div>
         </section>
 
+
+        <section class="card">
+            <h2>Sourcegraph Code Intelligence</h2>
+            <p>
+                Explore the repository using Sourcegraph code search and navigation.
+            </p>
+
+            <div class="input-row">
+                <input
+                    id="sourcegraph-query"
+                    type="text"
+                    value="repo:predictive-self-healing-cicd"
+                    placeholder="e.g. repo:predictive-self-healing-cicd health_check"
+                >
+                <button onclick="openSourcegraph()">Open Search</button>
+            </div>
+
+            <div class="sourcegraph-info">
+                <p><strong>Repository:</strong> predictive-self-healing-cicd</p>
+                <p><strong>Status:</strong> Indexed in Sourcegraph</p>
+                <p><strong>Features:</strong> Code Search · Symbol Navigation · Repository Exploration</p>
+            </div>
+
+            <div id="sourcegraph-results" class="sourcegraph-results">
+                <p>Search results will appear here.</p>
+            </div>
+        </section>
+
     </main>
 
     <script src="/static/app.js"></script>

@@ -134,3 +134,117 @@ function escapeHtml(value) {
 
 
 checkHealth();
+
+async function openSourcegraph() {
+    const input = document.getElementById("sourcegraph-query");
+    const query = input.value.trim();
+    const resultsContainer = document.getElementById("sourcegraph-results");
+
+    if (!query) {
+        resultsContainer.innerHTML =
+            "<p>Please enter a Sourcegraph search query.</p>";
+        return;
+    }
+
+    resultsContainer.innerHTML = "<p>Searching Sourcegraph...</p>";
+
+    try {
+        const response = await fetch("/api/search/sourcegraph", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                query: query,
+                max_results: 10
+            })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.detail || "Sourcegraph search failed");
+        }
+
+        if (!data.results || data.results.length === 0) {
+            resultsContainer.innerHTML =
+                "<p class='sourcegraph-empty'>No matching results found.</p>";
+            return;
+        }
+
+        resultsContainer.innerHTML = data.results.map((result, index) => `
+            <div class="sourcegraph-result">
+                <div class="sourcegraph-result-path">
+                    ${escapeHtml(result.path)}
+                    <span>Line ${escapeHtml(result.line_number)}</span>
+                </div>
+                <div class="sourcegraph-result-preview">
+                    ${escapeHtml(result.preview)}
+                </div>
+                <button
+                    class="explain-sourcegraph-button"
+                    onclick="explainSourcegraphResult(${index})"
+                >
+                    Explain with AI
+                </button>
+                <div
+                    id="sourcegraph-explanation-${index}"
+                    class="sourcegraph-explanation"
+                ></div>
+            </div>
+        `).join("");
+
+        window.sourcegraphResults = data.results;
+
+    } catch (error) {
+        resultsContainer.innerHTML =
+            `<p class="sourcegraph-error">Error: ${error.message}</p>`;
+    }
+}
+
+
+async function explainSourcegraphResult(index) {
+    const result = window.sourcegraphResults?.[index];
+    const explanationContainer = document.getElementById(
+        `sourcegraph-explanation-${index}`
+    );
+
+    if (!result || !explanationContainer) {
+        return;
+    }
+
+    explanationContainer.innerHTML =
+        "<p class='loading'>Generating AI explanation...</p>";
+
+    try {
+        const response = await fetch("/api/search/sourcegraph/explain", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                repository: result.repository,
+                path: result.path,
+                line_number: result.line_number,
+                preview: result.preview
+            })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.detail || "AI explanation failed");
+        }
+
+        explanationContainer.innerHTML = `
+            <div class="sourcegraph-explanation-content">
+                <strong>AI Explanation</strong>
+                <p>${escapeHtml(data.explanation)}</p>
+            </div>
+        `;
+
+    } catch (error) {
+        explanationContainer.innerHTML =
+            `<p class="sourcegraph-error">Error: ${escapeHtml(error.message)}</p>`;
+    }
+}
