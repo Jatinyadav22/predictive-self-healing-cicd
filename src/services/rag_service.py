@@ -234,30 +234,9 @@ def generate_rag_answer(
 
     context = "\n\n".join(context_parts)
 
-    prompt = f"""
-You are the RAG assistant for a software repository.
+    from src.services.rag_llm_service import generate_rag_response
 
-Answer the user's question using ONLY the retrieved repository
-context provided below.
-
-Rules:
-- Do not invent files, functions, behavior, or configuration.
-- If the retrieved context is insufficient, say so clearly.
-- Mention relevant file names when useful.
-- Keep the answer concise and technically accurate.
-
-User question:
-{query}
-
-Retrieved repository context:
-{context}
-
-Answer:
-""".strip()
-
-    from src.services.llm_service import generate_explanation
-
-    answer = generate_explanation(
+    answer = generate_rag_response(
         query,
         context,
     )
