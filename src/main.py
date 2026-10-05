@@ -4,6 +4,7 @@ from src.api.repository import router as repository_router
 from src.api.search import router as search_router
 from src.api.qa import router as qa_router
 from src.api.rag import router as rag_router
+from src.api.test_generation import router as test_generation_router
 
 app = FastAPI(
     title="Predictive & Explainable Self-Healing CI/CD",
@@ -24,6 +25,7 @@ app.include_router(repository_router)
 app.include_router(search_router)
 app.include_router(qa_router)
 app.include_router(rag_router)
+app.include_router(test_generation_router)
 
 
 from fastapi.staticfiles import StaticFiles
