@@ -297,3 +297,90 @@ button:hover {
     margin: 8px 0 0;
     white-space: pre-wrap;
 }
+
+.evaluation-section {
+    border-top: 4px solid #2563eb;
+}
+
+.evaluation-badge {
+    display: inline-block;
+    margin-bottom: 10px;
+    padding: 5px 10px;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 6px;
+    color: #1d4ed8;
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.rag-answer {
+    margin-top: 20px;
+    padding: 18px;
+    border-left: 4px solid #2563eb;
+    background: #eff6ff;
+    border-radius: 6px;
+}
+
+.rag-answer strong {
+    color: #1d4ed8;
+}
+
+.rag-answer p {
+    margin: 8px 0 0;
+    white-space: pre-wrap;
+}
+
+.rag-evidence-title {
+    margin-top: 22px;
+    margin-bottom: 12px;
+}
+
+.rag-source {
+    margin-top: 12px;
+    padding: 15px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-left: 4px solid #2563eb;
+    border-radius: 8px;
+}
+
+.rag-source-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+
+.rag-source-header strong {
+    color: #1d4ed8;
+}
+
+.rag-score {
+    flex-shrink: 0;
+    padding: 4px 8px;
+    background: #eff6ff;
+    border-radius: 6px;
+    color: #2563eb;
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+.rag-source-meta {
+    margin-top: 6px;
+    color: #64748b;
+    font-size: 0.82rem;
+}
+
+.rag-source-content {
+    margin-top: 10px;
+    padding: 11px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    font-family: "Courier New", monospace;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    overflow-x: auto;
+}

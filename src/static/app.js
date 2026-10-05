@@ -248,3 +248,68 @@ async function explainSourcegraphResult(index) {
             `<p class="sourcegraph-error">Error: ${escapeHtml(error.message)}</p>`;
     }
 }
+
+async function askRAG() {
+    const question = document.getElementById("rag-question").value.trim();
+    const resultsContainer = document.getElementById("rag-results");
+
+    if (!question) {
+        resultsContainer.innerHTML =
+            "<p class='loading'>Enter a repository question.</p>";
+        return;
+    }
+
+    resultsContainer.innerHTML =
+        "<p class='loading'>Retrieving repository context and generating RAG answer...</p>";
+
+    try {
+        const response = await fetch("/api/rag/query", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                question: question,
+                max_results: 3
+            })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.detail || "RAG request failed");
+        }
+
+        const sources = (data.sources || []).map(source => `
+            <div class="rag-source">
+                <div class="rag-source-header">
+                    <strong>${escapeHtml(source.source)}</strong>
+                    <span class="rag-score">
+                        Chroma distance: ${escapeHtml(source.score)}
+                    </span>
+                </div>
+
+                <div class="rag-source-meta">
+                    ${escapeHtml(source.file_type || "unknown")}
+                </div>
+
+                <pre class="rag-source-content">${escapeHtml(source.content)}</pre>
+            </div>
+        `).join("");
+
+        resultsContainer.innerHTML = `
+            <div class="rag-answer">
+                <strong>RAG Answer</strong>
+                <p>${escapeHtml(data.answer)}</p>
+            </div>
+
+            <h3 class="rag-evidence-title">Retrieved Evidence</h3>
+
+            ${sources || "<p class='loading'>No repository evidence was retrieved.</p>"}
+        `;
+
+    } catch (error) {
+        resultsContainer.innerHTML =
+            `<p class="sourcegraph-error">Error: ${escapeHtml(error.message)}</p>`;
+    }
+}

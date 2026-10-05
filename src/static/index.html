@@ -77,6 +77,25 @@
             </div>
         </section>
 
+        <section class="card evaluation-section">
+            <div class="evaluation-badge">Evaluation 2 — RAG &amp; AI DevOps</div>
+            <h2>RAG Repository Assistant</h2>
+            <p>
+                Ask questions about the repository using chunk-level retrieval
+                from the persistent Chroma knowledge base.
+            </p>
+
+            <textarea
+                id="rag-question"
+                rows="4"
+                placeholder="e.g. Where is the FastAPI health check endpoint implemented?"
+            ></textarea>
+
+            <button onclick="askRAG()">Ask RAG</button>
+
+            <div id="rag-results"></div>
+        </section>
+
     </main>
 
     <script src="/static/app.js"></script>
