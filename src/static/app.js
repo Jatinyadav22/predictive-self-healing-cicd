@@ -313,3 +313,74 @@ async function askRAG() {
             `<p class="sourcegraph-error">Error: ${escapeHtml(error.message)}</p>`;
     }
 }
+
+
+async function loadRAGStatus() {
+    const statusContainer = document.getElementById("rag-status");
+
+    if (!statusContainer) {
+        return;
+    }
+
+    try {
+        const response = await fetch("/api/rag/status");
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.detail || "Unable to load RAG status");
+        }
+
+        const statusLabel =
+            data.status === "ready" ? "Ready" : "Empty";
+
+        statusContainer.innerHTML = `
+            <div class="rag-status-item">
+                <span class="rag-status-label">Status</span>
+                <strong class="rag-status-value ${data.status === "ready" ? "rag-status-ready" : ""}">
+                    ${escapeHtml(statusLabel)}
+                </strong>
+            </div>
+
+            <div class="rag-status-item">
+                <span class="rag-status-label">Documents Indexed</span>
+                <strong class="rag-status-value">
+                    ${escapeHtml(data.documents)}
+                </strong>
+            </div>
+
+            <div class="rag-status-item">
+                <span class="rag-status-label">Chunks Indexed</span>
+                <strong class="rag-status-value">
+                    ${escapeHtml(data.chunks)}
+                </strong>
+            </div>
+
+            <div class="rag-status-item">
+                <span class="rag-status-label">Embedding Model</span>
+                <strong class="rag-status-value">
+                    ${escapeHtml(data.embedding_model)}
+                </strong>
+            </div>
+
+            <div class="rag-status-item">
+                <span class="rag-status-label">Collection</span>
+                <strong class="rag-status-value">
+                    ${escapeHtml(data.collection)}
+                </strong>
+            </div>
+
+            <div class="rag-status-item">
+                <span class="rag-status-label">Vector Store</span>
+                <strong class="rag-status-value">
+                    ChromaDB
+                </strong>
+            </div>
+        `;
+
+    } catch (error) {
+        statusContainer.innerHTML =
+            `<p class="sourcegraph-error">Error: ${escapeHtml(error.message)}</p>`;
+    }
+}
+
+loadRAGStatus();

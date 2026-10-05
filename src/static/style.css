@@ -384,3 +384,45 @@ button:hover {
     white-space: pre-wrap;
     overflow-x: auto;
 }
+
+.rag-status-card {
+    border-top: 4px solid #2563eb;
+}
+
+.rag-status-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.rag-status-item {
+    padding: 16px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+}
+
+.rag-status-label {
+    display: block;
+    margin-bottom: 6px;
+    color: #64748b;
+    font-size: 0.85rem;
+}
+
+.rag-status-value {
+    display: block;
+    color: #1e293b;
+    font-size: 1rem;
+    overflow-wrap: anywhere;
+}
+
+.rag-status-ready {
+    color: #15803d;
+}
+
+@media (max-width: 700px) {
+    .rag-status-grid {
+        grid-template-columns: 1fr;
+    }
+}
