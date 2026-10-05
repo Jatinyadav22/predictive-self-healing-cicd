@@ -253,3 +253,33 @@ def generate_rag_answer(
             for result in retrieved
         ],
     }
+
+
+def get_rag_index_status() -> dict[str, object]:
+    """Return the current status of the persistent RAG knowledge base."""
+
+    vector_store = get_vector_store()
+
+    data = vector_store.get(
+        include=["metadatas"],
+    )
+
+    metadatas = data.get("metadatas") or []
+
+    sources = {
+        metadata.get("source")
+        for metadata in metadatas
+        if metadata and metadata.get("source")
+    }
+
+    chunk_count = len(metadatas)
+    document_count = len(sources)
+
+    return {
+        "status": "ready" if chunk_count > 0 else "empty",
+        "collection": RAG_COLLECTION_NAME,
+        "persist_directory": str(RAG_PERSIST_DIRECTORY),
+        "embedding_model": RAG_EMBEDDING_MODEL,
+        "documents": document_count,
+        "chunks": chunk_count,
+    }

@@ -21,3 +21,11 @@ def rag_query(request: RAGRequest):
         request.question,
         max_results=request.max_results,
     )
+
+
+from src.services.rag_service import get_rag_index_status
+
+
+@router.get("/status")
+def rag_status():
+    return get_rag_index_status()

@@ -42,3 +42,33 @@ def test_rag_query_endpoint():
     assert "src/main.py" in data["answer"]
     assert len(data["sources"]) == 1
     assert data["sources"][0]["source"] == "src/main.py"
+
+
+def test_rag_status_endpoint():
+    from src.api import rag
+
+    original_function = rag.get_rag_index_status
+
+    rag.get_rag_index_status = lambda: {
+        "status": "ready",
+        "collection": "repository_knowledge",
+        "persist_directory": "data/rag_chroma",
+        "embedding_model": "nomic-embed-text:latest",
+        "documents": 26,
+        "chunks": 42,
+    }
+
+    try:
+        response = client.get("/api/rag/status")
+    finally:
+        rag.get_rag_index_status = original_function
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    assert data["status"] == "ready"
+    assert data["collection"] == "repository_knowledge"
+    assert data["embedding_model"] == "nomic-embed-text:latest"
+    assert data["documents"] == 26
+    assert data["chunks"] == 42
