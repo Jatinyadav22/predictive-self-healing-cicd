@@ -49,3 +49,32 @@ def test_test_generation_endpoint():
         data["sources"][0]["source"]
         == "src/services/repository_scanner.py"
     )
+
+
+def test_test_validation_endpoint():
+    response = client.post(
+        "/api/test-generation/validate",
+        json={
+            "test_code": "def test_ok():\n    assert 1 == 1\n"
+        }
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["is_valid_syntax"] is True
+    assert "test_ok" in data["discovered_test_functions"]
+
+
+def test_test_execution_endpoint():
+    response = client.post(
+        "/api/test-generation/execute",
+        json={
+            "test_code": "def test_ok():\n    assert True\n",
+            "target_dir": "demo_repo",
+            "timeout": 10
+        }
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "PASSED"
+    assert data["exit_code"] == 0
+

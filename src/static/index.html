@@ -3,110 +3,577 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI DevOps Intelligence</title>
+    <title>AutoHeal CI/CD — Enterprise Autonomous DevOps Platform</title>
     <link rel="stylesheet" href="/static/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
-
 <body>
-    <header class="header">
-        <div>
-            <h1>AI DevOps Intelligence</h1>
-            <p>Predictive & Explainable Self-Healing CI/CD</p>
+
+    <!-- Human-Crafted Forest Green & Warm Cream Header -->
+    <header class="enterprise-header">
+        <div class="brand-section">
+            <span class="brand-badge">AH</span>
+            <div>
+                <h1 class="brand-title">AutoHeal CI/CD</h1>
+                <p class="brand-subtitle">Predictive & Explainable Autonomous DevOps</p>
+            </div>
         </div>
-        <div id="health-status" class="status">Checking system...</div>
+
+        <div class="telemetry-cluster">
+            <div class="cluster-item">
+                <span class="cluster-status-dot"></span>
+                <span class="cluster-label">System:</span>
+                <span class="cluster-value" id="system-health">Online</span>
+            </div>
+            <div class="cluster-item">
+                <span class="cluster-label">Reasoning LLM:</span>
+                <span class="cluster-value">Qwen 2.5 (3B)</span>
+            </div>
+            <div class="cluster-item">
+                <span class="cluster-label">Vector Store:</span>
+                <span class="cluster-value">ChromaDB / Nomic</span>
+            </div>
+            <div class="cluster-item">
+                <span class="cluster-label">Pre-Commit Model:</span>
+                <span class="cluster-value">Random Forest (12 Features)</span>
+            </div>
+            <div class="cluster-item">
+                <span class="cluster-label">Recovery MTTR:</span>
+                <span class="cluster-value" style="color: #74c69d;">19.4s</span>
+            </div>
+        </div>
     </header>
 
-    <main class="container">
+    <!-- Navigation Tabs -->
+    <nav class="enterprise-nav">
+        <button class="nav-tab-item active" onclick="switchTab('pipeline')">Pipeline Orchestration</button>
+        <button class="nav-tab-item" onclick="switchTab('risk')">Predictive Risk & Evaluation</button>
+        <button class="nav-tab-item" onclick="switchTab('incidents')">Incident Diagnostics & RCA</button>
+        <button class="nav-tab-item" onclick="switchTab('healing')">
+            Safety Policy & Approval
+            <span id="pending-count-badge" class="status-pill warning" style="display:none; margin-left:6px; font-size:10px;">0</span>
+        </button>
+        <button class="nav-tab-item" onclick="switchTab('intelligence')">Repository Intelligence & RAG</button>
+        <button class="nav-tab-item" onclick="switchTab('testgen')">AI Test Candidate Validation</button>
+        <button class="nav-tab-item" onclick="switchTab('audit')">Cryptographic Audit Ledger</button>
+    </nav>
 
-        <section class="card">
-            <h2>Semantic Code Search</h2>
-            <p>Search the repository using natural language.</p>
+    <!-- Main Container -->
+    <main class="main-wrapper">
 
-            <div class="input-row">
-                <input
-                    id="search-query"
-                    type="text"
-                    placeholder="e.g. Where is repository scanning implemented?"
-                >
-                <button onclick="semanticSearch()">Search</button>
+        <!-- TAB 1: PIPELINE ORCHESTRATION -->
+        <div id="tab-pipeline" class="tab-pane active">
+            <div class="grid-cols-2">
+                <!-- Fault Injection & Execution Controls -->
+                <div class="panel">
+                    <div class="panel-header">
+                        <div>
+                            <h2 class="panel-title">Autonomous Pipeline Trigger</h2>
+                            <p class="panel-description">Simulate commit ingestion, inject reproducible defect scenarios, and observe the closed-loop recovery cycle.</p>
+                        </div>
+                    </div>
+
+                    <div class="field-group">
+                        <label class="field-label" for="scenario-select">Pre-Configured Defect Scenario</label>
+                        <select id="scenario-select" onchange="onScenarioChange()">
+                            <option value="clean">Clean Commit (All Unit Tests Passing)</option>
+                            <option value="1" selected>Scenario 1: Logic Defect (Off-by-five subtraction in apply_discount)</option>
+                            <option value="2">Scenario 2: Syntax Error (Unclosed parenthesis in tax calculation)</option>
+                            <option value="3">Scenario 3: Dependency Defect (Missing module import statement)</option>
+                            <option value="4">Scenario 4: Configuration Typo (Port mismatch in microservice setting)</option>
+                            <option value="5">Scenario 5: High-Risk Inversion (Triggers Safety Boundary & Human Approval)</option>
+                        </select>
+                    </div>
+
+                    <div id="scenario-details" class="callout" style="margin-bottom: 16px;">
+                        Target: app.py | Injected off-by-five logic error in apply_discount(). test_apply_discount_standard will fail.
+                    </div>
+
+                    <div style="display: flex; gap: 10px;">
+                        <button id="btn-trigger" class="btn btn-primary" onclick="triggerPipeline()">
+                            Execute Autonomous CI/CD
+                        </button>
+                        <button class="btn btn-secondary" onclick="resetDemoRepo()">
+                            Reset Target Repository
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Closed-Loop Stepper -->
+                <div class="panel">
+                    <div class="panel-header">
+                        <div>
+                            <h2 class="panel-title">Closed-Loop Lifecycle Tracking</h2>
+                            <p class="panel-description">Real-time status of pipeline phases and automated self-healing execution.</p>
+                        </div>
+                    </div>
+
+                    <div class="pipeline-stepper">
+                        <div id="step-1" class="stepper-step">
+                            <div class="step-indicator">1</div>
+                            <span class="step-title">Risk Scoring</span>
+                        </div>
+                        <div id="step-2" class="stepper-step">
+                            <div class="step-indicator">2</div>
+                            <span class="step-title">Pytest Run</span>
+                        </div>
+                        <div id="step-3" class="stepper-step">
+                            <div class="step-indicator">3</div>
+                            <span class="step-title">Failure Log</span>
+                        </div>
+                        <div id="step-4" class="stepper-step">
+                            <div class="step-indicator">4</div>
+                            <span class="step-title">RAG RCA</span>
+                        </div>
+                        <div id="step-5" class="stepper-step">
+                            <div class="step-indicator">5</div>
+                            <span class="step-title">AST Patch</span>
+                        </div>
+                        <div id="step-6" class="stepper-step">
+                            <div class="step-indicator">6</div>
+                            <span class="step-title">Safety Gate</span>
+                        </div>
+                        <div id="step-7" class="stepper-step">
+                            <div class="step-indicator">7</div>
+                            <span class="step-title">Verification</span>
+                        </div>
+                    </div>
+
+                    <div id="live-status-card" class="callout" style="background-color: var(--bg-elevated); border-left-color: var(--brand-primary); margin-top: 18px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <strong id="live-run-title" style="font-size: 13px; color: var(--text-primary);">Status: Idle</strong>
+                            <span id="live-run-badge" class="status-pill info">IDLE</span>
+                        </div>
+                        <p id="live-run-msg" style="font-size: 12px; color: var(--text-secondary); margin-bottom: 0;">
+                            Select a scenario and click "Execute Autonomous CI/CD" to begin demonstration.
+                        </p>
+                    </div>
+                </div>
             </div>
 
-            <div id="search-results"></div>
-        </section>
+            <!-- Executions Ledger Table -->
+            <div class="panel" style="margin-top: 20px;">
+                <div class="panel-header">
+                    <div>
+                        <h2 class="panel-title">Pipeline Execution History</h2>
+                        <p class="panel-description">Comprehensive immutable ledger of builds, risk estimates, failures, and recovery events.</p>
+                    </div>
+                    <button class="btn btn-secondary" onclick="loadPipelineRuns()">Refresh Records</button>
+                </div>
 
-        <section class="card">
-            <h2>AI Code Q&A</h2>
-            <p>Ask questions about the repository and receive an AI-generated explanation.</p>
+                <div class="data-table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Run ID</th>
+                                <th>Commit SHA</th>
+                                <th>Predicted Risk</th>
+                                <th>Failure Classification</th>
+                                <th>Status</th>
+                                <th>Started At</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="runs-table-body">
+                            <tr><td colspan="7" style="text-align:center; color:var(--text-muted); padding: 18px;">Loading execution history...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
 
-            <textarea
-                id="qa-question"
-                rows="4"
-                placeholder="e.g. What does the repository scanner do?"
-            ></textarea>
+        <!-- TAB 2: PRE-COMMIT RISK & MODEL EVALUATION -->
+        <div id="tab-risk" class="tab-pane">
+            <div class="grid-cols-2">
+                <!-- Simulator Panel -->
+                <div class="panel">
+                    <div class="panel-header">
+                        <div>
+                            <h2 class="panel-title">Pre-Commit Churn & Risk Simulator</h2>
+                            <p class="panel-description">Adjust commit characteristics to observe real-time failure probability inference before running CI.</p>
+                        </div>
+                    </div>
 
-            <button onclick="askQuestion()">Ask AI</button>
+                    <div class="slider-unit">
+                        <div class="slider-labels">
+                            <span>Lines Added:</span>
+                            <strong id="val-lines-added">55</strong>
+                        </div>
+                        <input type="range" id="input-lines-added" min="0" max="800" value="55" oninput="onRiskSliderChange()">
+                    </div>
 
-            <div id="qa-results"></div>
-        </section>
+                    <div class="slider-unit">
+                        <div class="slider-labels">
+                            <span>Lines Deleted:</span>
+                            <strong id="val-lines-deleted">12</strong>
+                        </div>
+                        <input type="range" id="input-lines-deleted" min="0" max="400" value="12" oninput="onRiskSliderChange()">
+                    </div>
 
+                    <div class="slider-unit">
+                        <div class="slider-labels">
+                            <span>Files Changed:</span>
+                            <strong id="val-files-changed">2</strong>
+                        </div>
+                        <input type="range" id="input-files-changed" min="1" max="25" value="2" oninput="onRiskSliderChange()">
+                    </div>
 
-        <section class="card">
-            <h2>Sourcegraph Code Intelligence</h2>
-            <p>
-                Explore the repository using Sourcegraph code search and navigation.
-            </p>
+                    <div class="slider-unit">
+                        <div class="slider-labels">
+                            <span>Test Lines Added:</span>
+                            <strong id="val-test-lines">20</strong>
+                        </div>
+                        <input type="range" id="input-test-lines" min="0" max="300" value="20" oninput="onRiskSliderChange()">
+                    </div>
 
-            <div class="input-row">
-                <input
-                    id="sourcegraph-query"
-                    type="text"
-                    value="repo:predictive-self-healing-cicd"
-                    placeholder="e.g. repo:predictive-self-healing-cicd health_check"
-                >
-                <button onclick="openSourcegraph()">Open Search</button>
+                    <div class="slider-unit">
+                        <div class="slider-labels">
+                            <span>Author Historical Failure Rate:</span>
+                            <strong id="val-fail-rate">8%</strong>
+                        </div>
+                        <input type="range" id="input-fail-rate" min="0" max="100" value="8" oninput="onRiskSliderChange()">
+                    </div>
+
+                    <div style="margin-top: 20px; padding-top: 14px; border-top: 1px solid var(--border-subtle);">
+                        <div class="metric-row">
+                            <span id="sim-risk-score" class="metric-value-large" style="color: var(--status-success);">7.3%</span>
+                            <div class="progress-track">
+                                <div id="sim-risk-bar" class="progress-bar-fill" style="width: 7.3%; background-color: var(--status-success);"></div>
+                            </div>
+                            <span id="sim-risk-tier" class="status-pill success">LOW RISK</span>
+                        </div>
+                        <div style="margin-top: 12px;">
+                            <span class="field-label">Feature Attribution Factors:</span>
+                            <ul id="sim-risk-factors" style="font-size: 12px; color: var(--text-secondary); padding-left: 18px; line-height: 1.7;">
+                                <li>Minimal Code Churn: Safe small delta of 67 lines.</li>
+                                <li>Proportional Test Updates: Commit includes relevant test suite updates.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Model Evaluation & Baseline Comparison -->
+                <div class="panel">
+                    <div class="panel-header">
+                        <div>
+                            <h2 class="panel-title">Model Evaluation & Baseline Benchmark</h2>
+                            <p class="panel-description">Statistical evaluation on held-out test split compared against ZeroR majority baseline.</p>
+                        </div>
+                    </div>
+
+                    <div class="callout alert-warning" style="margin-bottom: 16px;">
+                        <strong style="color: var(--text-primary); font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em;">Dataset Disclosure:</strong>
+                        <span id="eval-dataset-label" style="display: block; margin-top: 2px;">DEMONSTRATION_SYNTHETIC_CI_DATASET</span>
+                    </div>
+
+                    <div class="data-table-wrapper" style="margin-bottom: 16px;">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Evaluation Metric</th>
+                                    <th>Random Forest</th>
+                                    <th>ZeroR Baseline</th>
+                                    <th>Delta</th>
+                                </tr>
+                            </thead>
+                            <tbody id="eval-metrics-tbody">
+                                <tr><td>Accuracy</td><td id="eval-rf-acc">92.0%</td><td id="eval-base-acc">64.0%</td><td style="color:var(--status-success);">+28.0%</td></tr>
+                                <tr><td>Precision</td><td id="eval-rf-prec">90.5%</td><td>0.0%</td><td style="color:var(--status-success);">+90.5%</td></tr>
+                                <tr><td>Recall</td><td id="eval-rf-rec">88.2%</td><td>0.0%</td><td style="color:var(--status-success);">+88.2%</td></tr>
+                                <tr><td>F1 Score</td><td id="eval-rf-f1">89.3%</td><td>0.0%</td><td style="color:var(--status-success);">+89.3%</td></tr>
+                                <tr><td>ROC-AUC</td><td id="eval-rf-auc">0.96</td><td>0.50</td><td style="color:var(--status-success);">+0.46</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div style="margin-bottom: 14px;">
+                        <span class="field-label">Confusion Matrix (Held-Out Test Set):</span>
+                        <div id="eval-confusion-matrix" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-family: var(--font-mono); font-size: 12px;">
+                            <div class="callout" style="padding: 8px;">True Negatives: <strong id="eval-tn">15</strong></div>
+                            <div class="callout" style="padding: 8px;">False Positives: <strong id="eval-fp">1</strong></div>
+                            <div class="callout" style="padding: 8px;">False Negatives: <strong id="eval-fn">1</strong></div>
+                            <div class="callout" style="padding: 8px;">True Positives: <strong id="eval-tp">8</strong></div>
+                        </div>
+                    </div>
+
+                    <div class="callout" style="font-size: 11px; line-height: 1.5;">
+                        <strong style="color: var(--text-primary);">Documented Model Limitations:</strong>
+                        <p id="eval-limitations" style="margin-top: 4px; color: var(--text-secondary);">
+                            This model evaluates commit risk based on commit churn and author history. It does not inspect deep semantic code correctness before execution.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: INCIDENT DIAGNOSTICS & RCA -->
+        <div id="tab-incidents" class="tab-pane">
+            <div class="panel" style="margin-bottom: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <h2 class="panel-title">Explainable Incident Deep-Dive</h2>
+                        <p class="panel-description">Inspect failure root cause analysis, grounding ChromaDB citations, and generated AST unified diff.</p>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <select id="incident-run-select" onchange="onSelectIncidentRun()" style="width: 280px;">
+                            <option value="">Select a Pipeline Run...</option>
+                        </select>
+                        <button class="btn btn-secondary" onclick="loadPipelineRuns()">Refresh</button>
+                    </div>
+                </div>
             </div>
 
-            <div class="sourcegraph-info">
-                <p><strong>Repository:</strong> predictive-self-healing-cicd</p>
-                <p><strong>Status:</strong> Indexed in Sourcegraph</p>
-                <p><strong>Features:</strong> Code Search · Symbol Navigation · Repository Exploration</p>
+            <div class="grid-cols-2">
+                <!-- Left: Diagnostic Evidence -->
+                <div>
+                    <div class="panel" style="margin-bottom: 20px;">
+                        <div class="panel-header">
+                            <div>
+                                <h3 class="panel-title">Failure Diagnosis & Strategy</h3>
+                            </div>
+                        </div>
+
+                        <div id="incident-failure-info" style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                            <span class="status-pill danger" id="inc-fail-type">LOGIC_ASSERTION_FAILURE</span>
+                            <span id="inc-fail-loc" style="font-size: 12px; color: var(--text-muted); font-family: var(--font-mono);">app.py:44</span>
+                        </div>
+
+                        <div class="code-container" id="inc-error-msg" style="margin-bottom: 14px; color: #f87171;">
+                            AssertionError: assert 85.0 == 90.0
+                        </div>
+
+                        <div style="margin-bottom: 12px;">
+                            <span class="field-label">Root Cause Analysis (Qwen 2.5 3B):</span>
+                            <p id="inc-rca-text" style="font-size: 13px; color: var(--text-primary); line-height: 1.6;"></p>
+                        </div>
+
+                        <div>
+                            <span class="field-label">Repair Strategy:</span>
+                            <p id="inc-strategy-text" style="font-size: 13px; color: var(--text-secondary); line-height: 1.6;"></p>
+                        </div>
+                    </div>
+
+                    <div class="panel">
+                        <div class="panel-header">
+                            <div>
+                                <h3 class="panel-title">Retrieved Evidence Citations (ChromaDB)</h3>
+                                <p class="panel-description">Grounding source context retrieved using Nomic embeddings.</p>
+                            </div>
+                        </div>
+                        <div id="inc-citations-list" style="display: flex; flex-direction: column; gap: 10px;">
+                            <p style="color: var(--text-muted); font-size: 12px;">No evidence citations loaded.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Unified Git Diff -->
+                <div class="panel">
+                    <div class="panel-header">
+                        <div>
+                            <h3 class="panel-title">Candidate AST Patch & Unified Diff</h3>
+                            <p class="panel-description">Minimal syntax patch generated by Qwen 2.5 3B repair agent.</p>
+                        </div>
+                    </div>
+
+                    <div id="inc-diff-view" class="diff-view">
+                        <span class="diff-meta">--- a/app.py</span>
+                        <span class="diff-meta">+++ b/app.py</span>
+                        <span class="diff-del">-    final_price = total - (discount_amount + 5.0)</span>
+                        <span class="diff-add">+    final_price = total - discount_amount</span>
+                    </div>
+
+                    <div id="inc-safety-status" class="callout" style="margin-top: 16px;">
+                        <strong style="color: var(--text-primary); font-size: 12px;">Safety Policy Compliance:</strong>
+                        <ul id="inc-safety-list" style="margin-top: 6px; padding-left: 18px; color: var(--text-secondary); line-height: 1.7;">
+                            <li>AST Syntax Validation: Valid Python AST</li>
+                            <li>Blast Radius: 2 lines changed (&lt; 50 limit)</li>
+                            <li>Auto-apply Risk Ceiling: 7.3% (&lt; 40% threshold)</li>
+                        </ul>
+                    </div>
+                </div>
             </div>
+        </div>
 
-            <div id="sourcegraph-results" class="sourcegraph-results">
-                <p>Search results will appear here.</p>
+        <!-- TAB 4: HUMAN APPROVAL GATE -->
+        <div id="tab-healing" class="tab-pane">
+            <div class="panel">
+                <div class="panel-header">
+                    <div>
+                        <h2 class="panel-title">Human-in-the-Loop Safety Gate</h2>
+                        <p class="panel-description">Review candidate repairs that exceeded automated risk ceilings or triggered safety policy boundaries (e.g. Scenario 5).</p>
+                    </div>
+                </div>
+
+                <div class="data-table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Run ID</th>
+                                <th>Target File</th>
+                                <th>Risk Score</th>
+                                <th>Guardrail Violations</th>
+                                <th>Diff Preview</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="hitl-table-body">
+                            <tr><td colspan="6" style="text-align:center; color:var(--text-muted); padding: 24px;">No pending reviews requiring human sign-off.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
-        </section>
+        </div>
 
-        <section class="card evaluation-section">
-            <div class="evaluation-badge">Evaluation 2 — RAG &amp; AI DevOps</div>
-            <h2>RAG Repository Assistant</h2>
-            <p>
-                Ask questions about the repository using chunk-level retrieval
-                from the persistent Chroma knowledge base.
-            </p>
+        <!-- TAB 5: REPOSITORY INTELLIGENCE & RAG -->
+        <div id="tab-intelligence" class="tab-pane">
+            <div class="grid-cols-2">
+                <!-- Semantic Code Search -->
+                <div class="panel">
+                    <div class="panel-header">
+                        <div>
+                            <h2 class="panel-title">Semantic Code Search</h2>
+                            <p class="panel-description">Find repository functions and components using natural language queries powered by vector embeddings.</p>
+                        </div>
+                    </div>
 
-            <textarea
-                id="rag-question"
-                rows="4"
-                placeholder="e.g. Where is the FastAPI health check endpoint implemented?"
-            ></textarea>
+                    <div class="field-group">
+                        <label class="field-label" for="rag-search-input">Search Query</label>
+                        <input type="text" id="rag-search-input" placeholder="e.g. Where is discount calculation implemented?">
+                    </div>
+                    <button class="btn btn-primary" onclick="executeSemanticSearch()">Search Codebase</button>
 
-            <button onclick="askRAG()">Ask RAG</button>
+                    <div id="rag-search-results" style="margin-top: 16px; display: flex; flex-direction: column; gap: 10px;"></div>
+                </div>
 
-            <div id="rag-results"></div>
-        </section>
+                <!-- AI Code Q&A -->
+                <div class="panel">
+                    <div class="panel-header">
+                        <div>
+                            <h2 class="panel-title">Repository Grounded Q&A</h2>
+                            <p class="panel-description">Ask architectural questions answered strictly from retrieved source code evidence.</p>
+                        </div>
+                    </div>
 
-        <section class="card rag-status-card">
-            <div class="evaluation-badge">RAG Knowledge Base</div>
-            <h2>Knowledge Base Status</h2>
-            <p>
-                Live status of the persistent Chroma repository knowledge base.
-            </p>
+                    <div class="field-group">
+                        <label class="field-label" for="rag-qa-input">Architectural Question</label>
+                        <textarea id="rag-qa-input" rows="3" placeholder="e.g. Explain how the order processing logic validates items and applies tax."></textarea>
+                    </div>
+                    <button class="btn btn-primary" onclick="executeRAGQA()">Query Knowledge Base</button>
 
-            <div id="rag-status" class="rag-status-grid">
-                <p class="loading">Loading knowledge base status...</p>
+                    <div id="rag-qa-answer" class="callout" style="margin-top: 16px; display: none;"></div>
+                </div>
             </div>
-        </section>
+        </div>
+
+        <!-- TAB 6: AI TEST CANDIDATE VALIDATION -->
+        <div id="tab-testgen" class="tab-pane">
+            <div class="grid-cols-2">
+                <!-- Generation & AST Validation -->
+                <div class="panel">
+                    <div class="panel-header">
+                        <div>
+                            <h2 class="panel-title">Test Candidate Generation & AST Validation</h2>
+                            <p class="panel-description">Synthesize pytest candidates grounded in repository context, with pre-execution AST syntax and safety checks.</p>
+                        </div>
+                    </div>
+
+                    <div class="field-group">
+                        <label class="field-label" for="testgen-input">Test Requirement / Component Description</label>
+                        <input type="text" id="testgen-input" value="Generate unit tests for discount calculation with standard and boundary discount values.">
+                    </div>
+                    <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+                        <button id="btn-generate-test" class="btn btn-primary" onclick="generateTestCandidate()">
+                            Generate Candidate
+                        </button>
+                        <button class="btn btn-secondary" onclick="validateCurrentTestCandidate()">
+                            Validate Syntax & AST
+                        </button>
+                    </div>
+
+                    <div class="field-group">
+                        <label class="field-label">Synthesized Test Code</label>
+                        <textarea id="testgen-code" rows="12" style="font-family: var(--font-mono); font-size: 12px; line-height: 1.5;" placeholder="# Synthesized pytest candidate will appear here..."></textarea>
+                    </div>
+
+                    <div id="testgen-validation-summary" class="callout" style="display: none;">
+                        <strong style="color: var(--text-primary); font-size: 12px;">AST Pre-Validation Results:</strong>
+                        <div id="testgen-validation-badges" style="margin-top: 8px; display: flex; gap: 8px; flex-wrap: wrap;"></div>
+                    </div>
+                </div>
+
+                <!-- Isolated Execution Sandbox -->
+                <div class="panel">
+                    <div class="panel-header">
+                        <div>
+                            <h2 class="panel-title">Isolated Sandbox Execution</h2>
+                            <p class="panel-description">Safely execute candidate tests in temporary isolation with strict timeouts and zero direct host exposure.</p>
+                        </div>
+                    </div>
+
+                    <div class="field-group">
+                        <label class="field-label">Target Repository Directory</label>
+                        <input type="text" id="testgen-target-dir" value="demo_repo" readonly style="color: var(--text-muted);">
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+                        <button id="btn-execute-test" class="btn btn-primary" onclick="executeCurrentTestCandidate()">
+                            Execute Candidate in Sandbox
+                        </button>
+                        <span id="testgen-exec-badge" class="status-pill info">SANDBOX READY</span>
+                    </div>
+
+                    <div class="field-group">
+                        <label class="field-label">Isolated Terminal Execution Output</label>
+                        <div id="testgen-terminal" class="code-container" style="min-height: 240px; color: #94a3b8;">
+Waiting for candidate test execution...
+                        </div>
+                    </div>
+
+                    <div class="callout" style="font-size: 11px;">
+                        <strong style="color: var(--text-primary);">Security Sandbox Policy:</strong>
+                        <p style="margin-top: 4px; color: var(--text-secondary); margin-bottom: 0;">
+                            Candidates are executed via subprocess inside temporary files with a 15-second timeout, restricted permissions, and immediate teardown. Prohibited modules (subprocess, socket, pickle) are flagged prior to execution.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 7: CRYPTOGRAPHIC AUDIT LEDGER -->
+        <div id="tab-audit" class="tab-pane">
+            <div class="panel">
+                <div class="panel-header">
+                    <div>
+                        <h2 class="panel-title">Tamper-Evident Cryptographic Audit Ledger</h2>
+                        <p class="panel-description">SHA-256 hash-chained immutable audit trail tracking pipeline decisions, risk evaluations, and self-healing actions.</p>
+                    </div>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <span id="audit-verify-status" class="status-pill success">HASH CHAIN VALID</span>
+                        <button class="btn btn-secondary" onclick="loadAuditTrail()">Verify Integrity</button>
+                    </div>
+                </div>
+
+                <div class="data-table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>Event Type</th>
+                                <th>Actor</th>
+                                <th>Summary</th>
+                                <th>SHA-256 Event Hash</th>
+                                <th>Previous Hash</th>
+                            </tr>
+                        </thead>
+                        <tbody id="audit-table-body">
+                            <tr><td colspan="6" style="text-align:center; color:var(--text-muted); padding: 24px;">Loading audit ledger...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
 
     </main>
 

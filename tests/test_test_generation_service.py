@@ -53,3 +53,66 @@ def test_generate_tests_uses_rag_context_and_llm(
     )
 
     mock_chat.assert_called_once()
+
+
+def test_validate_generated_test_valid_syntax():
+    from src.services.test_generation_service import validate_generated_test
+    code = (
+        "def test_addition():\n"
+        "    assert 2 + 2 == 4\n"
+        "def test_subtraction():\n"
+        "    assert 5 - 2 == 3\n"
+    )
+    result = validate_generated_test(code)
+    assert result["is_valid_syntax"] is True
+    assert result["syntax_error"] is None
+    assert result["prohibited_imports"] == []
+    assert result["duplicate_test_names"] == []
+    assert len(result["discovered_test_functions"]) == 2
+
+
+def test_validate_generated_test_syntax_error():
+    from src.services.test_generation_service import validate_generated_test
+    code = "def broken_test( assert 1 == 1"
+    result = validate_generated_test(code)
+    assert result["is_valid_syntax"] is False
+    assert result["syntax_error"] is not None
+
+
+def test_validate_generated_test_flags_prohibited_imports():
+    from src.services.test_generation_service import validate_generated_test
+    code = (
+        "import subprocess\n"
+        "import socket\n"
+        "def test_dangerous():\n"
+        "    assert True\n"
+    )
+    result = validate_generated_test(code)
+    assert result["is_valid_syntax"] is True
+    assert "subprocess" in result["prohibited_imports"]
+    assert "socket" in result["prohibited_imports"]
+
+
+def test_validate_generated_test_flags_duplicate_names():
+    from src.services.test_generation_service import validate_generated_test
+    code = (
+        "def test_duplicate():\n"
+        "    assert True\n"
+        "def test_duplicate():\n"
+        "    assert 1 == 1\n"
+    )
+    result = validate_generated_test(code)
+    assert result["is_valid_syntax"] is True
+    assert "test_duplicate" in result["duplicate_test_names"]
+
+
+def test_execute_test_isolated_passing():
+    from src.services.test_generation_service import execute_test_isolated
+    code = (
+        "def test_sandbox_pass():\n"
+        "    assert 10 * 10 == 100\n"
+    )
+    res = execute_test_isolated(code, target_dir="demo_repo", timeout=10)
+    assert res["status"] == "PASSED"
+    assert res["exit_code"] == 0
+

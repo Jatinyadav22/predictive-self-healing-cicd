@@ -1,0 +1,11 @@
+service_name: "order-billing-service"
+version: "1.4.0"
+environment: "production"
+currency: "USD"
+api_timeout_seconds: 30
+max_discount_percentage: 50.0
+tax_rates:
+  CA: 0.0825
+  NY: 0.08875
+  TX: 0.0625
+  DEFAULT: 0.05
