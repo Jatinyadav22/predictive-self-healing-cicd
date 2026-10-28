@@ -144,12 +144,13 @@ def main():
             print("Local re-verification failed with stdout:\n", retest.stdout)
     elif status == "REQUIRES_HUMAN_APPROVAL":
         print("AutoHeal Safety Policy Gate triggered: Fix routed to Human-in-the-Loop review.")
+        sys.exit(1)
+    elif status == "SUCCESS":
+        print("AutoHeal verified codebase is clean and passing. No repair needed.")
+        sys.exit(0)
     else:
         print(f"AutoHeal could not automatically recover: {status}")
-
-    # Exit with code 1 so this failed run is marked Red (flawed),
-    # and the newly pushed commit will trigger and turn Green!
-    sys.exit(1)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

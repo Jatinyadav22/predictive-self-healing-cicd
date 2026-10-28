@@ -39,6 +39,8 @@ jobs:
 
       - name: Execute Automated Test Suite
         id: run_tests
+        env:
+          PYTHONPATH: .:demo_repo
         run: |
           set -o pipefail
           pytest -v --tb=short demo_repo/tests/ tests/ 2>&1 | tee pytest_output.log

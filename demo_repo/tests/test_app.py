@@ -2,6 +2,12 @@
 Comprehensive pytest test suite for order billing microservice.
 """
 
+import sys
+from pathlib import Path
+_repo_dir = Path(__file__).resolve().parent.parent
+if str(_repo_dir) not in sys.path:
+    sys.path.insert(0, str(_repo_dir))
+
 import pytest
 from app import calculate_tax, apply_discount, process_order, load_service_config
 
