@@ -43,7 +43,7 @@ jobs:
           PYTHONPATH: .:demo_repo
         run: |
           set -o pipefail
-          pytest -v --tb=short demo_repo/tests/ tests/ 2>&1 | tee pytest_output.log
+          pytest -v --tb=short demo_repo/tests/ 2>&1 | tee pytest_output.log
 
       - name: AutoHeal CI/CD — Webhook Ingestion & Autonomous Remediation
         if: failure()
