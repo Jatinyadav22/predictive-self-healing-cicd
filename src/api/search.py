@@ -43,16 +43,31 @@ def _do_semantic_search(query: str, path: str, max_results: int):
     results = semantic_search(path, query, max_results=max_results)
     return {"query": query, "results": results}
 
+@router.get("/sourcegraph/status")
+def get_sourcegraph_status():
+    from src.services.sourcegraph_search import check_sourcegraph_status
+    return check_sourcegraph_status()
+
 @router.post("/sourcegraph")
 def sourcegraph_code_search(request: SearchRequest):
-    results = sourcegraph_search(
-        request.query,
-        max_results=request.max_results,
-    )
-    return {
-        "query": request.query,
-        "results": results,
-    }
+    try:
+        results = sourcegraph_search(
+            request.query,
+            max_results=request.max_results,
+        )
+        return {
+            "query": request.query,
+            "results": results,
+            "status": "success",
+            "count": len(results)
+        }
+    except Exception as e:
+        return {
+            "query": request.query,
+            "results": [],
+            "status": "error",
+            "error": str(e)
+        }
 
 class SourcegraphExplainRequest(BaseModel):
     repository: str

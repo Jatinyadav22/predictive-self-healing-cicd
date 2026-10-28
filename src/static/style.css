@@ -644,3 +644,86 @@ input[type="range"] {
     background-color: #fef2f2;
     border-left-color: var(--status-danger);
 }
+
+/* ==========================================================================
+   Live GitOps & Webhook Telemetry
+   ========================================================================== */
+
+.live-beacon {
+    display: inline-block;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background-color: #52b788;
+    margin-right: 6px;
+    box-shadow: 0 0 0 0 rgba(82, 183, 136, 0.7);
+    animation: beacon-pulse 2s infinite;
+}
+
+.live-beacon.beacon-active {
+    background-color: #2d6a4f;
+    box-shadow: 0 0 0 0 rgba(45, 106, 79, 0.7);
+}
+
+.live-beacon.beacon-warning {
+    background-color: #d97706;
+    box-shadow: 0 0 0 0 rgba(217, 119, 6, 0.7);
+}
+
+@keyframes beacon-pulse {
+    0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(82, 183, 136, 0.7);
+    }
+    70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 6px rgba(82, 183, 136, 0);
+    }
+    100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(82, 183, 136, 0);
+    }
+}
+
+.webhook-monitor-panel {
+    background: linear-gradient(180deg, #ffffff 0%, #faf8f2 100%);
+    border: 1px solid var(--border-regular);
+    border-top: 3px solid var(--brand-accent);
+    border-radius: var(--radius-md);
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow-soft);
+}
+
+.webhook-grid {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: 20px;
+    align-items: start;
+}
+
+@media (max-width: 900px) {
+    .webhook-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.webhook-telemetry-box {
+    background-color: #ffffff;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    font-size: 12px;
+}
+
+.tag-badge {
+    display: inline-block;
+    padding: 2px 7px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    border-radius: 4px;
+    background-color: var(--brand-tint);
+    color: var(--brand-primary);
+    border: 1px solid rgba(27, 67, 50, 0.15);
+}
+

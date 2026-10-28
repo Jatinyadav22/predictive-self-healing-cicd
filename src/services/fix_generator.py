@@ -69,14 +69,16 @@ class FixGenerator:
             old_function_code = "".join(orig_lines[target_node.lineno - 1:target_node.end_lineno])
 
         if old_function_code and target_node:
-            prompt = f"""You are a master Python software engineer.
-Fix the bug in this Python function based on the error, failing test, and RCA so all tests pass.
-Carefully inspect the math calculations: remove any buggy offsets, unexpected constants, or incorrect arithmetic (e.g. '+ 5.0') so the calculation produces the correct mathematical result.
-Output ONLY the complete corrected function. Do NOT include explanations or markdown code fences.
+            prompt = f"""You are an expert Python software engineer.
+Fix the bug in this Python function so that all unit tests pass.
+- Remove any erroneous arithmetic offsets, unexpected additions, or subtractions (such as '+ 5.0', '- 5.0', or '+ 5') from calculations.
+- Ensure standard financial formulas produce the exact expected result (e.g. 'final_price = total - discount_amount').
+- Fix any syntax errors or unclosed parentheses.
+Output ONLY the complete corrected function definition. Do NOT output markdown code fences, notes, or explanations.
 
 ERROR: {classification.error_message}
 FAILING TEST: {classification.failing_test_name or 'Unit Test'}
-{classification.stack_trace[:400]}
+{classification.stack_trace[:300]}
 
 RCA: {rca.root_cause_summary}
 STRATEGY: {rca.fix_strategy}

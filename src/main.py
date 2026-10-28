@@ -38,6 +38,13 @@ app.include_router(pipeline_router)
 app.include_router(risk_router)
 app.include_router(audit_router)
 
+# Direct Webhook alias for /api/webhooks/github
+from fastapi import Request
+from src.api.pipeline import github_webhook_endpoint
+@app.post("/api/webhooks/github")
+async def root_github_webhook(request: Request):
+    return await github_webhook_endpoint(request)
+
 # Mount static web assets
 static_dir = Path("src/static")
 static_dir.mkdir(parents=True, exist_ok=True)

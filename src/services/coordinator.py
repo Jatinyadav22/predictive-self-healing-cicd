@@ -34,10 +34,24 @@ class SelfHealingCoordinator:
         ci_files_touched: int = 0,
         author_recent_failure_rate: float = 0.10,
         repo_path: Optional[Path] = None,
-        scenario: Optional[str] = None
+        scenario: Optional[str] = None,
+        trigger_source: str = "WEB_DASHBOARD",
+        commit_message: Optional[str] = None,
+        run_url: Optional[str] = None,
+        repository: Optional[str] = None,
+        incoming_file_content: Optional[str] = None,
+        raw_failure_logs: Optional[str] = None
     ) -> PipelineRun:
         run_id = f"run-{int(time.time() * 1000)}"
         repo_dir = Path(repo_path or settings.DEMO_REPO_PATH).resolve()
+
+        # If incoming file content is provided from GitHub webhook, write it to target app.py
+        if incoming_file_content and incoming_file_content.strip():
+            target_app = repo_dir / "app.py"
+            try:
+                target_app.write_text(incoming_file_content, encoding="utf-8")
+            except Exception as e:
+                pass
 
         if scenario == "5":
             lines_added = max(lines_added, 480)
@@ -54,7 +68,11 @@ class SelfHealingCoordinator:
             branch=branch,
             author=author,
             status=PipelineStatus.BUILDING,
-            started_at=datetime.utcnow()
+            started_at=datetime.utcnow(),
+            trigger_source=trigger_source,
+            commit_message=commit_message,
+            run_url=run_url,
+            repository=repository
         )
         audit_logger.save_pipeline_run(run)
 

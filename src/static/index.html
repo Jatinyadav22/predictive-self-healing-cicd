@@ -65,6 +65,54 @@
 
         <!-- TAB 1: PIPELINE ORCHESTRATION -->
         <div id="tab-pipeline" class="tab-pane active">
+
+            <!-- LIVE GITOPS & GITHUB ACTIONS WEBHOOK TELEMETRY -->
+            <div class="webhook-monitor-panel">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span id="webhook-beacon" class="live-beacon"></span>
+                        <h2 style="font-size: 15px; font-weight: 700; color: var(--text-primary); margin: 0;">
+                            Live GitHub Actions GitOps Ingestion
+                        </h2>
+                        <span class="tag-badge">POST /api/webhooks/github</span>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn btn-secondary" style="font-size: 11px; padding: 4px 10px;" onclick="copyWebhookUrl()">
+                            📋 Copy Webhook URL
+                        </button>
+                        <button id="btn-sim-webhook" class="btn btn-primary" style="font-size: 11px; padding: 4px 10px; background-color: var(--brand-accent);" onclick="simulateGitHubWebhook()">
+                            ⚡ Simulate GitHub Push Trigger
+                        </button>
+                        <a href="https://github.com/Jatinyadav22/predictive-self-healing-cicd/actions" target="_blank" class="btn btn-secondary" style="font-size: 11px; padding: 4px 10px; text-decoration: none;">
+                            GitHub Actions ↗
+                        </a>
+                    </div>
+                </div>
+
+                <div class="webhook-grid">
+                    <div>
+                        <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 10px; line-height: 1.5;">
+                            Pushing code to <code>origin main</code> triggers the real-world CI/CD pipeline. When test failures occur in GitHub Actions, failure telemetry and defect context are automatically streamed to this platform to generate an AST-verified repair.
+                        </p>
+                        <div style="display: flex; flex-wrap: wrap; gap: 12px; font-size: 11px; color: var(--text-muted);">
+                            <span><strong>Target Repo:</strong> <code>Jatinyadav22/predictive-self-healing-cicd</code></span>
+                            <span><strong>Target Microservice:</strong> <code>demo_repo/app.py</code></span>
+                            <span><strong>Listening On:</strong> <code>http://3.109.199.144:8000</code></span>
+                        </div>
+                    </div>
+
+                    <div id="webhook-telemetry-card" class="webhook-telemetry-box">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <span style="font-weight: 600; color: var(--text-primary);" id="webhook-status-title">Awaiting GitHub Webhook...</span>
+                            <span id="webhook-status-badge" class="status-pill info">LISTENING</span>
+                        </div>
+                        <div id="webhook-details-content" style="color: var(--text-secondary); font-size: 11px; line-height: 1.5;">
+                            No incoming GitHub webhook detected yet in this session. Push a commit with a flaw or click <strong>Simulate GitHub Push Trigger</strong> to demonstrate live ingestion.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="grid-cols-2">
                 <!-- Fault Injection & Execution Controls -->
                 <div class="panel">
@@ -169,6 +217,7 @@
                             <tr>
                                 <th>Run ID</th>
                                 <th>Commit SHA</th>
+                                <th>Trigger</th>
                                 <th>Predicted Risk</th>
                                 <th>Failure Classification</th>
                                 <th>Status</th>
@@ -177,7 +226,7 @@
                             </tr>
                         </thead>
                         <tbody id="runs-table-body">
-                            <tr><td colspan="7" style="text-align:center; color:var(--text-muted); padding: 18px;">Loading execution history...</td></tr>
+                            <tr><td colspan="8" style="text-align:center; color:var(--text-muted); padding: 18px;">Loading execution history...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -428,19 +477,41 @@
 
         <!-- TAB 5: REPOSITORY INTELLIGENCE & RAG -->
         <div id="tab-intelligence" class="tab-pane">
+            <!-- Sourcegraph & Vector Store Intelligence Status -->
+            <div class="panel" style="margin-bottom: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span class="status-pill success" id="sg-status-pill">SOURCEGRAPH: PORT 7080 ONLINE</span>
+                            <span class="status-pill info">CHROMADB VECTOR RETRIEVAL</span>
+                            <span class="status-pill info">QWEN 2.5 3B REASONING</span>
+                        </div>
+                        <p style="margin-top: 6px; margin-bottom: 0; font-size: 12px; color: var(--text-secondary);">
+                            Target Repository: <code style="color: var(--brand-primary); font-weight: 600;">github.com/Jatinyadav22/predictive-self-healing-cicd</code>
+                            &nbsp;|&nbsp; Local Instance: <code>http://localhost:7080</code>
+                        </p>
+                    </div>
+                    <div>
+                        <a href="http://localhost:7080" target="_blank" class="btn btn-secondary" style="font-size: 11px; padding: 6px 14px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+                            Open Sourcegraph UI (Port 7080) &rarr;
+                        </a>
+                    </div>
+                </div>
+            </div>
+
             <div class="grid-cols-2">
                 <!-- Semantic Code Search -->
                 <div class="panel">
                     <div class="panel-header">
                         <div>
-                            <h2 class="panel-title">Semantic Code Search</h2>
+                            <h2 class="panel-title">Semantic Code Search (ChromaDB)</h2>
                             <p class="panel-description">Find repository functions and components using natural language queries powered by vector embeddings.</p>
                         </div>
                     </div>
 
                     <div class="field-group">
-                        <label class="field-label" for="rag-search-input">Search Query</label>
-                        <input type="text" id="rag-search-input" placeholder="e.g. Where is discount calculation implemented?">
+                        <label class="field-label" for="rag-search-input">Natural Language Query</label>
+                        <input type="text" id="rag-search-input" value="Where is discount calculation implemented?" placeholder="e.g. Where is discount calculation implemented?">
                     </div>
                     <button class="btn btn-primary" onclick="executeSemanticSearch()">Search Codebase</button>
 
@@ -451,18 +522,40 @@
                 <div class="panel">
                     <div class="panel-header">
                         <div>
-                            <h2 class="panel-title">Repository Grounded Q&A</h2>
+                            <h2 class="panel-title">Repository Grounded Q&A (RAG)</h2>
                             <p class="panel-description">Ask architectural questions answered strictly from retrieved source code evidence.</p>
                         </div>
                     </div>
 
                     <div class="field-group">
                         <label class="field-label" for="rag-qa-input">Architectural Question</label>
-                        <textarea id="rag-qa-input" rows="3" placeholder="e.g. Explain how the order processing logic validates items and applies tax."></textarea>
+                        <textarea id="rag-qa-input" rows="3" placeholder="e.g. Explain how the order processing logic validates items and applies tax.">How does the discount calculation work and what are its limits?</textarea>
                     </div>
                     <button class="btn btn-primary" onclick="executeRAGQA()">Query Knowledge Base</button>
 
                     <div id="rag-qa-answer" class="callout" style="margin-top: 16px; display: none;"></div>
+                </div>
+            </div>
+
+            <!-- Sourcegraph Enterprise Symbol & Code Search -->
+            <div class="panel" style="margin-top: 20px;">
+                <div class="panel-header">
+                    <div>
+                        <h2 class="panel-title">Sourcegraph Enterprise Symbol & Cross-Repo Code Search</h2>
+                        <p class="panel-description">Query exact AST function definitions, references, and symbols in real-time across <code>github.com/Jatinyadav22/predictive-self-healing-cicd</code> via Sourcegraph's GraphQL API (Port 7080).</p>
+                    </div>
+                </div>
+
+                <div class="field-group">
+                    <label class="field-label" for="sg-search-input">Sourcegraph Search Query / Symbol (GraphQL)</label>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="text" id="sg-search-input" value="discount" placeholder="e.g. apply_discount or calculate_tax or repo:predictive-self-healing-cicd">
+                        <button class="btn btn-primary" style="white-space: nowrap;" onclick="executeSourcegraphSearch()">Search Sourcegraph (Port 7080)</button>
+                    </div>
+                </div>
+
+                <div id="sg-search-results" style="margin-top: 16px; display: flex; flex-direction: column; gap: 10px;">
+                    <p style="color:var(--text-muted); font-size:12px;">Enter a symbol, function name, or keyword and click "Search Sourcegraph (Port 7080)".</p>
                 </div>
             </div>
         </div>

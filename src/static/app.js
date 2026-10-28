@@ -8,6 +8,14 @@ document.addEventListener("DOMContentLoaded", () => {
     loadAuditTrail();
     onRiskSliderChange();
     loadModelEvaluation();
+    loadSourcegraphStatus();
+    loadLatestWebhook();
+
+    // Live background polling for inbound GitHub Actions webhooks and executions
+    setInterval(() => {
+        loadLatestWebhook();
+        loadPipelineRuns();
+    }, 3500);
 });
 
 // Navigation Tab Controller
@@ -31,6 +39,8 @@ function switchTab(tabId) {
         loadModelEvaluation();
     } else if (tabId === "healing") {
         renderHITLQueue();
+    } else if (tabId === "intelligence") {
+        loadSourcegraphStatus();
     } else if (tabId === "audit") {
         loadAuditTrail();
     }
@@ -240,9 +250,19 @@ async function loadPipelineRuns() {
             const failType = run.failure_classification ? run.failure_classification.failure_type : "CLEAN_BUILD";
             const startedAt = run.started_at ? run.started_at.substring(11, 19) : "";
 
+            const isWebhook = run.trigger_source === "GITHUB_ACTIONS_WEBHOOK";
+            const triggerBadge = isWebhook
+                ? `<span class="tag-badge" style="background:#e0f2fe; color:#0369a1; border-color:#bae6fd;">GitHub CI 🚀</span>`
+                : `<span class="tag-badge" style="background:#f3f4f6; color:#4b5563;">Simulation 🖥️</span>`;
+
+            const commitHtml = run.run_url
+                ? `<a href="${escapeHtml(run.run_url)}" target="_blank" style="color:var(--brand-primary); text-decoration:underline; font-weight:600;"><code>${escapeHtml(run.commit_sha)}</code> ↗</a>`
+                : `<code>${escapeHtml(run.commit_sha)}</code>`;
+
             tr.innerHTML = `
                 <td><strong>#${escapeHtml(run.run_id.substring(4))}</strong></td>
-                <td><code>${escapeHtml(run.commit_sha)}</code></td>
+                <td>${commitHtml}</td>
+                <td>${triggerBadge}</td>
                 <td>${riskScore}</td>
                 <td>${escapeHtml(failType)}</td>
                 <td><span class="status-pill ${statusClass}">${escapeHtml(run.status)}</span></td>
@@ -605,6 +625,135 @@ async function executeRAGQA() {
     }
 }
 
+// ==========================================================================
+// Sourcegraph Enterprise Code & Symbol Intelligence (Tab 5)
+// ==========================================================================
+
+async function loadSourcegraphStatus() {
+    const pill = document.getElementById("sg-status-pill");
+    if (!pill) return;
+    try {
+        const res = await fetch("/api/search/sourcegraph/status");
+        if (res.ok) {
+            const data = await res.json();
+            if (data.reachable) {
+                pill.className = "status-pill success";
+                pill.textContent = "SOURCEGRAPH: PORT 7080 ONLINE";
+            } else {
+                pill.className = "status-pill warning";
+                pill.textContent = "SOURCEGRAPH: STARTING / PORT 7080";
+            }
+        }
+    } catch (e) {
+        if (pill) {
+            pill.className = "status-pill danger";
+            pill.textContent = "SOURCEGRAPH: CHECK TUNNEL (PORT 7080)";
+        }
+    }
+}
+
+async function executeSourcegraphSearch() {
+    const input = document.getElementById("sg-search-input");
+    const query = input ? input.value : "";
+    const resultsDiv = document.getElementById("sg-search-results");
+    if (!query.trim()) return;
+
+    resultsDiv.innerHTML = `<p style="color:var(--text-muted); font-size:12px;">Querying Sourcegraph GraphQL API on port 7080...</p>`;
+
+    try {
+        const res = await fetch("/api/search/sourcegraph", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ query: query, max_results: 10 })
+        });
+
+        if (res.ok) {
+            const data = await res.json();
+            if (data.status === "error") {
+                resultsDiv.innerHTML = `
+                    <div class="callout" style="border-left-color:var(--status-danger);">
+                        <strong style="color:var(--status-danger); font-size:12px;">Sourcegraph Notice:</strong>
+                        <p style="color:var(--text-secondary); font-size:12px; margin-top:4px; margin-bottom:0;">
+                            ${escapeHtml(data.error || 'Query failed.')}
+                        </p>
+                    </div>`;
+                return;
+            }
+
+            const results = data.results || [];
+            if (results.length === 0) {
+                resultsDiv.innerHTML = `
+                    <div class="callout" style="border-left-color:var(--brand-primary);">
+                        <strong style="color:var(--text-primary); font-size:12px;">Sourcegraph Search Connected</strong>
+                        <p style="color:var(--text-secondary); font-size:12px; margin-top:4px; margin-bottom:6px;">
+                            No matches found for query <code>"${escapeHtml(query)}"</code>.
+                        </p>
+                        <p style="color:var(--text-muted); font-size:11px; margin-bottom:0;">
+                            Tip: You can search function names (e.g. <code>apply_discount</code>, <code>calculate_tax</code>), files, or use filters like <code>repo:predictive-self-healing-cicd</code>.
+                        </p>
+                    </div>`;
+                return;
+            }
+
+            resultsDiv.innerHTML = results.map((r, idx) => `
+                <div class="callout" style="margin-bottom:10px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                        <div>
+                            <strong style="color:var(--brand-primary); font-size:12px;">${escapeHtml(r.path || 'file')}</strong>
+                            <span class="status-pill info" style="margin-left:8px; font-size:10px;">Line ${r.line_number || 'N/A'}</span>
+                            <span style="font-size:11px; color:var(--text-muted); margin-left:8px;">${escapeHtml(r.repository || '')}</span>
+                        </div>
+                        <button class="btn btn-secondary" style="font-size:11px; padding:3px 10px;" onclick="explainSourcegraphCode('${escapeHtml(r.repository || '')}', '${escapeHtml(r.path || '')}', ${r.line_number || 1}, this)">Explain with AI</button>
+                    </div>
+                    <pre style="font-family:var(--font-mono); font-size:11px; background:var(--bg-canvas); padding:8px 12px; border-radius:4px; white-space:pre-wrap; border:1px solid var(--border-regular); margin:0;">${escapeHtml(r.preview || '')}</pre>
+                    <div class="sg-explain-container" style="display:none; margin-top:10px; padding:10px; border-radius:4px; background:rgba(27,67,50,0.04); border:1px solid var(--border-subtle); font-size:12px; line-height:1.6; color:var(--text-primary);"></div>
+                </div>
+            `).join("");
+        } else {
+            resultsDiv.innerHTML = `<p style="color:var(--status-danger);">Sourcegraph query error (${res.status}): ${escapeHtml(res.statusText)}</p>`;
+        }
+    } catch (e) {
+        resultsDiv.innerHTML = `<p style="color:var(--status-danger);">Sourcegraph connection error: ${escapeHtml(String(e))}. Ensure Sourcegraph container is running on port 7080.</p>`;
+    }
+}
+
+async function explainSourcegraphCode(repo, path, line, btnElement) {
+    const parent = btnElement.closest(".callout");
+    let explainDiv = parent ? parent.querySelector(".sg-explain-container") : null;
+    if (!explainDiv) return;
+
+    btnElement.disabled = true;
+    btnElement.textContent = "Analyzing...";
+    explainDiv.style.display = "block";
+    explainDiv.innerHTML = `<em>Querying local Qwen 2.5 3B model to analyze code context and potential defect vectors...</em>`;
+
+    try {
+        const previewText = parent.querySelector("pre") ? parent.querySelector("pre").textContent : "";
+        const res = await fetch("/api/search/sourcegraph/explain", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                repository: repo,
+                path: path,
+                line_number: line,
+                preview: previewText
+            })
+        });
+
+        if (res.ok) {
+            const data = await res.json();
+            explainDiv.innerHTML = `<strong>Architectural Code Analysis (Qwen 2.5 3B):</strong><br><div style="margin-top:6px;">${escapeHtml(data.explanation || 'No explanation returned.')}</div>`;
+        } else {
+            explainDiv.innerHTML = `<span style="color:var(--status-danger);">Analysis request failed (${res.status}): ${escapeHtml(res.statusText)}</span>`;
+        }
+    } catch (e) {
+        explainDiv.innerHTML = `<span style="color:var(--status-danger);">Error: ${escapeHtml(String(e))}</span>`;
+    } finally {
+        btnElement.disabled = false;
+        btnElement.textContent = "Explain with AI";
+    }
+}
+
 // AI Test Candidate Generation & Validation (Feature 3)
 async function generateTestCandidate() {
     const reqText = document.getElementById("testgen-input").value;
@@ -892,4 +1041,194 @@ async function rejectRun(runId) {
         alert(`Request failed: ${e}`);
     }
 }
+
+// Copy Webhook URL to clipboard
+function copyWebhookUrl() {
+    const url = "http://3.109.199.144:8000/api/webhooks/github";
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(() => {
+            alert("Copied AutoHeal Webhook URL to clipboard:\n" + url + "\n\nUse this in GitHub Actions or GitHub Repository Webhooks settings.");
+        }).catch(() => {
+            prompt("AutoHeal Webhook URL (Copy manually):", url);
+        });
+    } else {
+        prompt("AutoHeal Webhook URL (Copy manually):", url);
+    }
+}
+
+// Load and display latest incoming webhook telemetry
+async function loadLatestWebhook() {
+    try {
+        const res = await fetch("/api/pipelines/latest-webhook");
+        if (!res.ok) return;
+        const data = await res.json();
+        const beacon = document.getElementById("webhook-beacon");
+        const title = document.getElementById("webhook-status-title");
+        const badge = document.getElementById("webhook-status-badge");
+        const details = document.getElementById("webhook-details-content");
+
+        if (!data || data.status === "WAITING") {
+            if (beacon) beacon.className = "live-beacon";
+            if (title) title.textContent = "Awaiting GitHub Actions Webhook...";
+            if (badge) {
+                badge.className = "status-pill info";
+                badge.textContent = "LISTENING";
+            }
+            return;
+        }
+
+        // Active or completed webhook
+        if (beacon) beacon.className = "live-beacon beacon-active";
+
+        const shortSha = data.commit_sha || "HEAD";
+        const author = data.author || "developer";
+        const branch = data.branch || "main";
+        const runUrl = data.run_url;
+        const pStatus = data.pipeline_status || "UNKNOWN";
+        const rca = data.rca_summary || "Automated AST root-cause diagnosis completed.";
+        const risk = data.risk_score !== null && data.risk_score !== undefined ? `${data.risk_score}%` : "Evaluating";
+
+        let badgeClass = "info";
+        if (pStatus === "RECOVERED_AUTOMATICALLY" || pStatus === "SUCCESS") badgeClass = "success";
+        else if (pStatus === "REQUIRES_HUMAN_APPROVAL") badgeClass = "warning";
+        else if (pStatus === "FAILED" || pStatus === "RECOVERY_FAILED_ROLLED_BACK") badgeClass = "danger";
+
+        if (title) {
+            title.innerHTML = `Incoming CI Failure: <code>${escapeHtml(shortSha)}</code> by <strong>@${escapeHtml(author)}</strong>`;
+        }
+
+        if (badge) {
+            badge.className = `status-pill ${badgeClass}`;
+            badge.textContent = pStatus;
+        }
+
+        const runLinkHtml = runUrl 
+            ? `<a href="${escapeHtml(runUrl)}" target="_blank" style="color:var(--brand-primary); text-decoration:underline; font-weight:600;">View Run in GitHub Actions ↗</a>` 
+            : `Branch: <code>${escapeHtml(branch)}</code>`;
+
+        if (details) {
+            details.innerHTML = `
+                <div style="margin-bottom:4px;">
+                    <strong>Trigger Source:</strong> Real GitHub Actions CI Failure &bull; ${runLinkHtml}
+                </div>
+                <div style="margin-bottom:4px;">
+                    <strong>Commit Message:</strong> "${escapeHtml(data.commit_message || 'Pipeline defect introduced')}"
+                </div>
+                <div style="margin-bottom:4px;">
+                    <strong>Predicted Churn Risk:</strong> ${risk} &bull; <strong>RCA:</strong> ${escapeHtml(rca)}
+                </div>
+                ${data.pipeline_run_id ? `<div><button class="btn btn-secondary" style="font-size:10px; padding:2px 8px; margin-top:4px;" onclick="viewRunDetails('${escapeHtml(data.pipeline_run_id)}')">Inspect Full Incident, Citations & Diff</button></div>` : ''}
+            `;
+        }
+    } catch (e) {
+        console.error("Failed to load latest webhook:", e);
+    }
+}
+
+// Simulate Inbound GitHub Push Trigger
+async function simulateGitHubWebhook() {
+    const btn = document.getElementById("btn-sim-webhook");
+    if (btn) {
+        btn.disabled = true;
+        btn.textContent = "Simulating CI Push...";
+    }
+
+    const simSha = "c" + Math.random().toString(16).substring(2, 9);
+    const simRunId = Math.floor(1000000000 + Math.random() * 9000000000);
+
+    const buggyAppContent = `"""
+Order and Billing Microservice core module.
+"""
+
+from pathlib import Path
+from typing import Any
+import yaml
+
+CONFIG_PATH = Path(__file__).resolve().parent / "config.yaml"
+
+def load_service_config(config_file: Path = CONFIG_PATH) -> dict[str, Any]:
+    if not config_file.exists():
+        raise FileNotFoundError(f"Configuration file not found: {config_file}")
+    with open(config_file, "r", encoding="utf-8") as f:
+        data = yaml.safe_load(f)
+    _ = data["service_name"]
+    _ = data["api_timeout_seconds"]
+    return data
+
+def calculate_tax(amount: float, state: str = "DEFAULT") -> float:
+    if amount < 0:
+        raise ValueError("Amount cannot be negative")
+    rates = {"CA": 0.0825, "NY": 0.08875, "TX": 0.0625, "DEFAULT": 0.05}
+    rate = rates.get(state.upper(), rates["DEFAULT"])
+    return round(amount * rate, 2)
+
+def apply_discount(total: float, discount_percent: float) -> float:
+    if total < 0:
+        raise ValueError("Total cannot be negative")
+    if discount_percent < 0 or discount_percent > 100:
+        raise ValueError("Discount must be between 0 and 100")
+    discount_amount = total * (discount_percent / 100.0)
+    final_price = total - discount_amount - 5.0  # Defect introduced in commit
+    return round(final_price, 2)
+
+def process_order(items: list[dict[str, Any]], state: str = "DEFAULT", discount_percent: float = 0.0) -> dict[str, Any]:
+    if not items:
+        raise ValueError("Order must contain at least one item")
+    subtotal = sum(item["price"] * item["quantity"] for item in items)
+    discounted_subtotal = apply_discount(subtotal, discount_percent)
+    tax = calculate_tax(discounted_subtotal, state)
+    grand_total = round(discounted_subtotal + tax, 2)
+    return {
+        "items_count": len(items),
+        "subtotal": round(subtotal, 2),
+        "discounted_subtotal": discounted_subtotal,
+        "tax": tax,
+        "grand_total": grand_total,
+        "state": state
+    }
+`;
+
+    const payload = {
+        event: "workflow_run",
+        commit_sha: simSha,
+        commit_message: "feat(billing): update discount calculation rule",
+        branch: "main",
+        author: "Jatinyadav22",
+        repository: "Jatinyadav22/predictive-self-healing-cicd",
+        run_id: String(simRunId),
+        run_url: `https://github.com/Jatinyadav22/predictive-self-healing-cicd/actions/runs/${simRunId}`,
+        failure_logs: "FAILED demo_repo/tests/test_app.py::test_apply_discount_standard - assert 85.0 == 90.0",
+        demo_app_content: buggyAppContent,
+        lines_added: 18,
+        lines_deleted: 4,
+        files_changed: 1
+    };
+
+    try {
+        const res = await fetch("/api/webhooks/github", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+            const data = await res.json();
+            await loadLatestWebhook();
+            await loadPipelineRuns();
+            if (data.run_id) {
+                viewRunDetails(data.run_id);
+            }
+        } else {
+            alert("Webhook simulation failed: " + res.statusText);
+        }
+    } catch (e) {
+        alert("Error executing webhook simulation: " + e);
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.textContent = "⚡ Simulate GitHub Push Trigger";
+        }
+    }
+}
+
 

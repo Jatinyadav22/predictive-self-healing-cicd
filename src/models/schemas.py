@@ -91,6 +91,10 @@ class PipelineRun(BaseModel):
     failure_classification: Optional[FailureClassification] = None
     healing_attempts: list[HealingAttempt] = Field(default_factory=list)
     raw_build_logs: str = ""
+    trigger_source: str = "WEB_DASHBOARD"
+    commit_message: Optional[str] = None
+    run_url: Optional[str] = None
+    repository: Optional[str] = None
 
 class AuditRecord(BaseModel):
     event_id: str
