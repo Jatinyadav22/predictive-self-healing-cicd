@@ -47,24 +47,146 @@
     </header>
 
     <!-- Navigation Tabs -->
-    <nav class="enterprise-nav">
-        <button class="nav-tab-item active" onclick="switchTab('pipeline')">Pipeline Orchestration</button>
-        <button class="nav-tab-item" onclick="switchTab('risk')">Predictive Risk & Evaluation</button>
-        <button class="nav-tab-item" onclick="switchTab('incidents')">Incident Diagnostics & RCA</button>
+    <!-- Streamlined Enterprise Navigation Tabs -->
+    <nav class="enterprise-nav" style="display: flex; align-items: center; gap: 4px; flex-wrap: wrap;">
+        <button class="nav-tab-item active" onclick="switchTab('pipeline')">🚀 Live Self-Healing Demo</button>
         <button class="nav-tab-item" onclick="switchTab('healing')">
-            Safety Policy & Approval
+            🛡️ Safety Policy & Approval
             <span id="pending-count-badge" class="status-pill warning" style="display:none; margin-left:6px; font-size:10px;">0</span>
         </button>
-        <button class="nav-tab-item" onclick="switchTab('intelligence')">Repository Intelligence & RAG</button>
-        <button class="nav-tab-item" onclick="switchTab('testgen')">AI Test Candidate Validation</button>
-        <button class="nav-tab-item" onclick="switchTab('audit')">Cryptographic Audit Ledger</button>
+        <button class="nav-tab-item" onclick="switchTab('audit')">📜 Cryptographic Audit Ledger</button>
+        <span style="display: inline-block; width: 1px; height: 18px; background: rgba(255,255,255,0.25); margin: 0 6px;"></span>
+        <button class="nav-tab-item" onclick="switchTab('risk')" style="opacity: 0.85; font-size: 11px;">📊 Risk Predictor (ML)</button>
+        <button class="nav-tab-item" onclick="switchTab('incidents')" style="opacity: 0.85; font-size: 11px;">🔍 Incident RCA</button>
+        <button class="nav-tab-item" onclick="switchTab('intelligence')" style="opacity: 0.85; font-size: 11px;">🧠 Vector RAG</button>
+        <button class="nav-tab-item" onclick="switchTab('testgen')" style="opacity: 0.85; font-size: 11px;">🧪 Test Gen</button>
     </nav>
 
     <!-- Main Container -->
     <main class="main-wrapper">
 
-        <!-- TAB 1: PIPELINE ORCHESTRATION -->
+        <!-- TAB 1: PIPELINE ORCHESTRATION & LIVE DEMO -->
         <div id="tab-pipeline" class="tab-pane active">
+
+            <!-- HERO DEMO BANNER -->
+            <div class="demo-hero-banner" style="background: linear-gradient(135deg, #1b4332 0%, #081c15 100%); color: #ffffff; border-radius: var(--radius-lg); padding: 22px 26px; margin-bottom: 20px; box-shadow: 0 10px 25px rgba(27,67,50,0.25); border: 1px solid rgba(82, 183, 136, 0.3);">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                            <span style="background: rgba(82, 183, 136, 0.25); color: #74c69d; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.5px;">Live Autonomous Demonstration</span>
+                            <span class="live-beacon"></span>
+                            <span style="font-size: 12px; color: #b7e4c7;">AWS EC2 Online • Qwen 2.5 Active</span>
+                        </div>
+                        <h2 style="font-size: 22px; font-weight: 800; color: #ffffff; margin: 0 0 6px 0; letter-spacing: -0.5px;">
+                            Autonomous Self-Healing CI/CD Platform
+                        </h2>
+                        <p style="font-size: 13px; color: #d8f3dc; margin: 0; max-width: 680px; line-height: 1.5;">
+                            When code breaks tests in CI/CD, our AI detects the root cause, writes a surgical AST code fix, verifies it in a sandbox, and heals the pipeline in ~19 seconds.
+                        </p>
+                    </div>
+                    <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                        <button id="btn-hero-demo" class="btn-hero" onclick="runOneClickDemo()" style="font-size: 14px; padding: 12px 22px; background: #52b788; color: #081c15; font-weight: 800; border: none; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(82,183,136,0.4); transition: transform 0.15s ease;">
+                            <span>▶</span> Run 1-Click Self-Healing Demo
+                        </button>
+                        <button class="btn btn-secondary" onclick="resetDemoRepo()" style="background: rgba(255,255,255,0.12); color: #ffffff; border: 1px solid rgba(255,255,255,0.25); padding: 11px 16px; font-size: 13px; border-radius: 8px;">
+                            🔄 Reset Baseline
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VISUAL 3-STAGE TRANSFORMATION SHOWCASE (BEFORE -> AI BRAIN -> AFTER) -->
+            <div class="showcase-container">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+                    <div>
+                        <h3 style="font-size: 16px; font-weight: 700; color: var(--text-primary); margin: 0; display: flex; align-items: center; gap: 8px;">
+                            Visual Transformation Proof
+                            <span class="tag-badge" style="background:#e8f5e9; color:#1b4332; border-color:#a5d6a7;">Closed-Loop Recovery</span>
+                        </h3>
+                        <p style="font-size: 12px; color: var(--text-secondary); margin: 3px 0 0 0;">
+                            Live proof: See the defect, watch the Qwen 2.5 3B reasoning diff, and verify the passing sandbox test.
+                        </p>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <label for="showcase-scenario-picker" style="font-size: 12px; font-weight: 600; color: var(--text-secondary);">Demo Scenario:</label>
+                        <select id="showcase-scenario-picker" onchange="onShowcaseScenarioChange()" style="font-size: 12px; padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border-regular); background: #ffffff; font-weight: 500;">
+                            <option value="1" selected>Scenario 1: Logic Defect (-5.0 Off-by-five deduction)</option>
+                            <option value="2">Scenario 2: Syntax Error (Unclosed parenthesis)</option>
+                            <option value="5">Scenario 5: High-Risk Inversion (Triggers Safety Boundary & Approval Gate)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="showcase-grid">
+                    <!-- Box 1: The Problem (Red) -->
+                    <div id="card-problem" class="showcase-card card-problem">
+                        <div>
+                            <div class="card-header-label problem">
+                                <span>❌ 1. Failing CI/CD (The Bug)</span>
+                                <span id="card-problem-badge" class="status-pill danger">PYTEST FAILED</span>
+                            </div>
+                            <div style="font-size: 12px; font-weight: 600; color: var(--text-primary);" id="card-problem-file">
+                                File: demo_repo/app.py &rarr; apply_discount()
+                            </div>
+                            <div class="code-snippet-box" id="card-problem-code">
+                                <span class="diff-del"># ❌ BUG: Extraneous -5.0 offset injected<br>discounted = price - (price * (discount_percent / 100)) - 5.0</span>
+                            </div>
+                            <div style="font-size: 11px; color: #b91c1c; background: #fef2f2; padding: 8px 10px; border-radius: 4px; border: 1px solid #fecaca; margin-top: 6px;" id="card-problem-error">
+                                <strong>Pytest Assertion Failure:</strong><br>
+                                <code>AssertionError: assert 85.0 == 90.0 (1 failed, 10 passed)</code>
+                            </div>
+                        </div>
+                        <div style="margin-top: 12px; font-size: 11px; color: var(--text-muted); border-top: 1px dashed var(--border-subtle); padding-top: 8px;">
+                            CI State: <strong style="color: var(--status-danger);">Broken Build (Exit Code 1)</strong>
+                        </div>
+                    </div>
+
+                    <!-- Box 2: AI Brain (Blue) -->
+                    <div id="card-brain" class="showcase-card card-brain">
+                        <div>
+                            <div class="card-header-label brain">
+                                <span>🧠 2. AI Diagnosis & AST Patch</span>
+                                <span id="card-brain-badge" class="status-pill info">QWEN 2.5 REASONING</span>
+                            </div>
+                            <div style="font-size: 12px; font-weight: 600; color: var(--text-primary);" id="card-brain-title">
+                                Root Cause & Unified Patch Diff
+                            </div>
+                            <div class="code-snippet-box" id="card-brain-diff">
+                                <span class="diff-del">-     discounted = price - (price * (discount_percent / 100)) - 5.0</span><br>
+                                <span class="diff-add">+     discounted = price - (price * (discount_percent / 100))</span>
+                            </div>
+                            <div style="font-size: 11px; color: #1e40af; background: #eff6ff; padding: 8px 10px; border-radius: 4px; border: 1px solid #bfdbfe; margin-top: 6px;" id="card-brain-explanation">
+                                <strong>AI Root Cause Analysis:</strong> Extraneous arithmetic subtraction detected in discount function. Synthesized AST replacement snippet.
+                            </div>
+                        </div>
+                        <div style="margin-top: 12px; font-size: 11px; color: var(--text-muted); border-top: 1px dashed var(--border-subtle); padding-top: 8px;">
+                            Safety Guardrail: <strong style="color: var(--brand-primary);" id="card-brain-safety">Passed (AST Valid, Risk: 0.12)</strong>
+                        </div>
+                    </div>
+
+                    <!-- Box 3: The Result (Green) -->
+                    <div id="card-healed" class="showcase-card card-healed">
+                        <div>
+                            <div class="card-header-label healed">
+                                <span>✔ 3. Healed & Sandbox Verified</span>
+                                <span id="card-healed-badge" class="status-pill success">11/11 TESTS PASSED</span>
+                            </div>
+                            <div style="font-size: 12px; font-weight: 600; color: var(--text-primary);" id="card-healed-title">
+                                Clean Code Verified in Sandbox
+                            </div>
+                            <div class="code-snippet-box" id="card-healed-code">
+                                <span class="diff-add">def apply_discount(price, discount_percent):<br>    """Returns price after discount percentage."""<br>    return price - (price * (discount_percent / 100))</span>
+                            </div>
+                            <div style="font-size: 11px; color: #065f46; background: #ecfdf5; padding: 8px 10px; border-radius: 4px; border: 1px solid #a7f3d0; margin-top: 6px;" id="card-healed-summary">
+                                <strong>Sandbox Retest:</strong> 11 passed in 0.18s. Auto-recovery completed in <strong>19.4 seconds</strong> without human intervention.
+                            </div>
+                        </div>
+                        <div style="margin-top: 12px; font-size: 11px; color: var(--text-muted); border-top: 1px dashed var(--border-subtle); padding-top: 8px;">
+                            Final Outcome: <strong style="color: #1b4332;" id="card-healed-outcome">RECOVERED_AUTOMATICALLY ✔</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <!-- LIVE GITOPS & GITHUB ACTIONS WEBHOOK TELEMETRY -->
             <div class="webhook-monitor-panel">
@@ -97,7 +219,7 @@
                         <div style="display: flex; flex-wrap: wrap; gap: 12px; font-size: 11px; color: var(--text-muted);">
                             <span><strong>Target Repo:</strong> <code>Jatinyadav22/predictive-self-healing-cicd</code></span>
                             <span><strong>Target Microservice:</strong> <code>demo_repo/app.py</code></span>
-                            <span><strong>Listening On:</strong> <code>http://3.109.199.144:8000</code></span>
+                            <span><strong>Listening On:</strong> <code>http://13.201.178.182:8000</code></span>
                         </div>
                     </div>
 

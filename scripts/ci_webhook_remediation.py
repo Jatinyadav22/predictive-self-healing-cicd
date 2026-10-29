@@ -17,7 +17,7 @@ def main():
     print(" AutoHeal CI/CD: Initiating Autonomous Self-Healing Pipeline      ")
     print("==================================================================")
 
-    autoheal_url = os.environ.get("AUTOHEAL_URL", "http://3.109.199.144:8000").rstrip("/")
+    autoheal_url = os.environ.get("AUTOHEAL_URL", "http://13.201.178.182:8000").rstrip("/")
     webhook_endpoint = f"{autoheal_url}/api/webhooks/github"
 
     # Read failure logs

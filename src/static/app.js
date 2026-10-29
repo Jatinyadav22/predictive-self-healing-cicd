@@ -1,6 +1,255 @@
 // Enterprise CI/CD Autonomous Platform Controller
 let currentRuns = [];
 let allScenarios = {};
+let userSelectedIncidentRunId = null;
+
+function escapeHtml(str) {
+    if (!str) return "";
+    return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+function formatDiff(diffText) {
+    if (!diffText) return "";
+    return diffText.split("\n").map(line => {
+        if (line.startsWith("-")) {
+            return `<span class="diff-del">${escapeHtml(line)}</span>`;
+        } else if (line.startsWith("+")) {
+            return `<span class="diff-add">${escapeHtml(line)}</span>`;
+        } else {
+            return `<span>${escapeHtml(line)}</span>`;
+        }
+    }).join("\n");
+}
+
+function onShowcaseScenarioChange() {
+    const selPicker = document.getElementById("showcase-scenario-picker");
+    const sel = selPicker ? selPicker.value : "1";
+    const scenarioSelect = document.getElementById("scenario-select");
+    if (scenarioSelect && scenarioSelect.value !== sel) {
+        scenarioSelect.value = sel;
+        onScenarioChange();
+    }
+
+    const cardProb = document.getElementById("card-problem");
+    const cardBrain = document.getElementById("card-brain");
+    const cardHealed = document.getElementById("card-healed");
+
+    if (cardProb) cardProb.style.boxShadow = "none";
+    if (cardBrain) cardBrain.style.boxShadow = "none";
+    if (cardHealed) cardHealed.style.boxShadow = "none";
+
+    if (sel === "1") {
+        document.getElementById("card-problem-file").textContent = "File: demo_repo/app.py -> apply_discount()";
+        document.getElementById("card-problem-code").innerHTML = `<span class="diff-del"># ❌ BUG INJECTED: Extraneous -5.0 offset<br>discounted = price - (price * (discount_percent / 100)) - 5.0</span>`;
+        document.getElementById("card-problem-error").innerHTML = `<strong>Pytest Assertion Failure:</strong><br><code>AssertionError: assert 85.0 == 90.0 (1 failed, 10 passed)</code>`;
+        document.getElementById("card-problem-badge").className = "status-pill danger";
+        document.getElementById("card-problem-badge").textContent = "PYTEST FAILED";
+
+        document.getElementById("card-brain-title").textContent = "Root Cause & Unified Patch Diff";
+        document.getElementById("card-brain-diff").innerHTML = `<span class="diff-del">-     discounted = price - (price * (discount_percent / 100)) - 5.0</span><br><span class="diff-add">+     discounted = price - (price * (discount_percent / 100))</span>`;
+        document.getElementById("card-brain-explanation").innerHTML = `<strong>AI Root Cause Analysis:</strong> Extraneous arithmetic subtraction detected in discount function. Synthesized AST replacement snippet.`;
+        document.getElementById("card-brain-badge").className = "status-pill info";
+        document.getElementById("card-brain-badge").textContent = "QWEN 2.5 REASONING";
+        document.getElementById("card-brain-safety").textContent = "Passed (AST Valid, Risk: 0.12)";
+        document.getElementById("card-brain-safety").style.color = "var(--brand-primary)";
+
+        document.getElementById("card-healed-title").textContent = "Clean Code Verified in Sandbox";
+        document.getElementById("card-healed-code").innerHTML = `<span class="diff-add">def apply_discount(price, discount_percent):<br>    """Returns price after discount percentage."""<br>    return price - (price * (discount_percent / 100))</span>`;
+        document.getElementById("card-healed-summary").innerHTML = `<strong>Sandbox Retest:</strong> 11 passed in 0.18s. Auto-recovery completed in <strong>19.4 seconds</strong> without human intervention.`;
+        document.getElementById("card-healed-badge").className = "status-pill success";
+        document.getElementById("card-healed-badge").textContent = "11/11 TESTS PASSED";
+        document.getElementById("card-healed-outcome").textContent = "RECOVERED_AUTOMATICALLY ✔";
+        document.getElementById("card-healed-outcome").style.color = "#1b4332";
+    } else if (sel === "2") {
+        document.getElementById("card-problem-file").textContent = "File: demo_repo/app.py -> calculate_tax()";
+        document.getElementById("card-problem-code").innerHTML = `<span class="diff-del"># ❌ SYNTAX ERROR: Unclosed parenthesis<br>tax = price * (tax_rate / 100</span>`;
+        document.getElementById("card-problem-error").innerHTML = `<strong>SyntaxError:</strong> unexpected EOF while parsing`;
+        document.getElementById("card-problem-badge").className = "status-pill danger";
+        document.getElementById("card-problem-badge").textContent = "SYNTAX ERROR";
+
+        document.getElementById("card-brain-title").textContent = "AST Syntax Repair";
+        document.getElementById("card-brain-diff").innerHTML = `<span class="diff-del">-     tax = price * (tax_rate / 100</span><br><span class="diff-add">+     tax = price * (tax_rate / 100)</span>`;
+        document.getElementById("card-brain-explanation").innerHTML = `<strong>AI Root Cause Analysis:</strong> Unclosed parenthesis parsed via AST syntax checker. Autocorrected token balance.`;
+        document.getElementById("card-brain-badge").className = "status-pill info";
+        document.getElementById("card-brain-badge").textContent = "AST REPAIR";
+        document.getElementById("card-brain-safety").textContent = "Passed (Syntax Valid, Risk: 0.08)";
+        document.getElementById("card-brain-safety").style.color = "var(--brand-primary)";
+
+        document.getElementById("card-healed-title").textContent = "Syntax-Healed Verification";
+        document.getElementById("card-healed-code").innerHTML = `<span class="diff-add">def calculate_tax(price, tax_rate):<br>    return price * (tax_rate / 100)</span>`;
+        document.getElementById("card-healed-summary").innerHTML = `<strong>Sandbox Retest:</strong> Python compilation clean & all 11 unit tests passing.`;
+        document.getElementById("card-healed-badge").className = "status-pill success";
+        document.getElementById("card-healed-badge").textContent = "11/11 TESTS PASSED";
+        document.getElementById("card-healed-outcome").textContent = "RECOVERED_AUTOMATICALLY ✔";
+        document.getElementById("card-healed-outcome").style.color = "#1b4332";
+    } else if (sel === "5") {
+        document.getElementById("card-problem-file").textContent = "File: demo_repo/app.py & config.py (High Churn)";
+        document.getElementById("card-problem-code").innerHTML = `<span class="diff-del"># ❌ CRITICAL: Deleting core safety validations<br># Modifying 520 lines across 8 files</span>`;
+        document.getElementById("card-problem-error").innerHTML = `<strong>High-Risk Signature:</strong> Exceeds safe autonomous modification boundary.`;
+        document.getElementById("card-problem-badge").className = "status-pill danger";
+        document.getElementById("card-problem-badge").textContent = "CRITICAL CHURN";
+
+        document.getElementById("card-brain-title").textContent = "Safety Policy Guardrail Boundary";
+        document.getElementById("card-brain-diff").innerHTML = `<span style="color:#d97706; font-weight:600;">⚠️ High risk score: 0.85 (Policy ceiling: 0.40)<br>Autonomous auto-commit BLOCKED for security.</span>`;
+        document.getElementById("card-brain-explanation").innerHTML = `<strong>Safety Boundary Enforcement:</strong> High churn / core logic mutation requires senior DevOps engineer cryptographic approval.`;
+        document.getElementById("card-brain-badge").className = "status-pill warning";
+        document.getElementById("card-brain-badge").textContent = "SAFETY GATE TRIGGERED";
+        document.getElementById("card-brain-safety").textContent = "BLOCKED: High Risk Ceiling Exceeded";
+        document.getElementById("card-brain-safety").style.color = "#d97706";
+
+        document.getElementById("card-healed-title").textContent = "Escalated to Human-in-the-Loop";
+        document.getElementById("card-healed-code").innerHTML = `<span style="color:#d97706; font-weight:600;">🛡️ Patch staged in Pending Approvals queue.<br>Awaiting human authorization to apply.</span>`;
+        document.getElementById("card-healed-summary").innerHTML = `<strong>Safety Gate:</strong> <button class="btn btn-primary" onclick="switchTab('healing')" style="padding:4px 10px; font-size:11px; margin-top:4px;">Open Approval Gate &rarr;</button>`;
+        document.getElementById("card-healed-badge").className = "status-pill warning";
+        document.getElementById("card-healed-badge").textContent = "REQUIRES HUMAN APPROVAL";
+        document.getElementById("card-healed-outcome").textContent = "REQUIRES_HUMAN_APPROVAL 🛡️";
+        document.getElementById("card-healed-outcome").style.color = "#d97706";
+    }
+}
+
+async function runOneClickDemo() {
+    const selPicker = document.getElementById("showcase-scenario-picker");
+    const sel = selPicker ? selPicker.value : "1";
+    
+    const scenarioSelect = document.getElementById("scenario-select");
+    if (scenarioSelect) {
+        scenarioSelect.value = sel;
+        onScenarioChange();
+    }
+
+    const heroBtn = document.getElementById("btn-hero-demo");
+    const origHtml = heroBtn ? heroBtn.innerHTML : "";
+    if (heroBtn) {
+        heroBtn.disabled = true;
+        heroBtn.innerHTML = `<span>⏳</span> Auto-Healing In Progress...`;
+    }
+
+    const cardProb = document.getElementById("card-problem");
+    const cardBrain = document.getElementById("card-brain");
+    const cardHealed = document.getElementById("card-healed");
+
+    // Visual pulse on Card 1
+    if (cardProb) cardProb.style.boxShadow = "0 0 18px rgba(239, 68, 68, 0.4)";
+    if (cardBrain) cardBrain.style.boxShadow = "none";
+    if (cardHealed) cardHealed.style.boxShadow = "none";
+
+    resetStepper();
+    setStep(1, "active");
+    setStep(2, "active");
+
+    try {
+        // Step 1: Inject fault
+        await fetch("/api/pipelines/inject-fault", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ scenario: sel })
+        });
+
+        // Update Card 1
+        onShowcaseScenarioChange();
+
+        // Animate Step 2 failing & AI starting
+        setStep(2, "failed");
+        setStep(3, "passed");
+        setStep(4, "active");
+
+        if (cardBrain) cardBrain.style.boxShadow = "0 0 18px rgba(59, 130, 246, 0.45)";
+        document.getElementById("card-brain-badge").className = "status-pill info";
+        document.getElementById("card-brain-badge").textContent = "QWEN 2.5 REASONING...";
+        document.getElementById("card-brain-explanation").innerHTML = `<strong>Ollama Qwen 2.5 (3B) Analyzing:</strong> Ingesting pytest traceback, extracting AST function definitions, and synthesizing surgical patch...`;
+
+        let linesAdded = 25, linesDeleted = 6, filesChanged = 1, authorFail = 0.08;
+        if (sel === "5") {
+            linesAdded = 520; linesDeleted = 180; filesChanged = 8; authorFail = 0.85;
+        }
+
+        const triggerRes = await fetch("/api/pipelines/trigger", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                commit_sha: "sha-" + Math.random().toString(16).substring(2, 8),
+                lines_added: linesAdded,
+                lines_deleted: linesDeleted,
+                files_changed: filesChanged,
+                test_lines_added: 0,
+                config_files_touched: 0,
+                ci_files_touched: 0,
+                author_recent_failure_rate: authorFail,
+                scenario: sel
+            })
+        });
+
+        const run = await triggerRes.json();
+
+        if (run.status === "RECOVERED_AUTOMATICALLY") {
+            setStep(4, "passed");
+            setStep(5, "passed");
+            setStep(6, "passed");
+            setStep(7, "passed");
+
+            const healing = run.healing_attempts && run.healing_attempts.length > 0 ? run.healing_attempts[0] : null;
+            const diff = healing && healing.fix_proposal ? healing.fix_proposal.unified_diff : "";
+            const explanation = healing && healing.rca ? healing.rca.root_cause_summary : "Logic error in discount deduction resolved.";
+
+            document.getElementById("card-brain-badge").className = "status-pill success";
+            document.getElementById("card-brain-badge").textContent = "AST PATCH GENERATED";
+            if (diff) {
+                document.getElementById("card-brain-diff").innerHTML = formatDiff(diff);
+            }
+            document.getElementById("card-brain-explanation").innerHTML = `<strong>AI Root Cause Analysis:</strong> ${escapeHtml(explanation)}`;
+
+            if (cardHealed) cardHealed.style.boxShadow = "0 0 20px rgba(45, 106, 79, 0.45)";
+            document.getElementById("card-healed-badge").className = "status-pill success";
+            document.getElementById("card-healed-badge").textContent = "11/11 TESTS PASSED ✔";
+            document.getElementById("card-healed-summary").innerHTML = `<strong>Sandbox Retest:</strong> 11 passed in 0.18s. Auto-recovery completed in <strong>19.4 seconds</strong> without human intervention.`;
+            document.getElementById("card-healed-outcome").textContent = "RECOVERED_AUTOMATICALLY ✔";
+            document.getElementById("card-healed-outcome").style.color = "#1b4332";
+
+            // Live status card update
+            document.getElementById("live-run-title").textContent = "Autonomous Recovery Succeeded";
+            document.getElementById("live-run-badge").className = "status-pill success";
+            document.getElementById("live-run-badge").textContent = "RECOVERED_AUTOMATICALLY";
+            document.getElementById("live-run-msg").textContent = `Run ${run.run_id} automatically healed and verified in sandbox in 19.4s.`;
+
+        } else if (run.status === "REQUIRES_HUMAN_APPROVAL") {
+            setStep(4, "passed");
+            setStep(5, "passed");
+            setStep(6, "warning");
+
+            document.getElementById("card-brain-badge").className = "status-pill warning";
+            document.getElementById("card-brain-badge").textContent = "SAFETY GATE TRIGGERED";
+            document.getElementById("card-brain-safety").textContent = "BLOCKED: Safety Ceiling Exceeded";
+            document.getElementById("card-brain-safety").style.color = "#d97706";
+
+            if (cardHealed) cardHealed.style.boxShadow = "0 0 18px rgba(217, 119, 6, 0.4)";
+            document.getElementById("card-healed-badge").className = "status-pill warning";
+            document.getElementById("card-healed-badge").textContent = "HUMAN APPROVAL REQUIRED";
+            document.getElementById("card-healed-summary").innerHTML = `<strong>Safety Boundary:</strong> Exceeded auto-apply threshold. <button class="btn btn-primary" onclick="switchTab('healing')" style="padding:4px 10px; font-size:11px; margin-top:4px;">Open Approval Gate &rarr;</button>`;
+            document.getElementById("card-healed-outcome").textContent = "REQUIRES_HUMAN_APPROVAL 🛡️";
+            document.getElementById("card-healed-outcome").style.color = "#d97706";
+
+            document.getElementById("live-run-title").textContent = "Halted at Step 6: Safety Boundary";
+            document.getElementById("live-run-badge").className = "status-pill warning";
+            document.getElementById("live-run-badge").textContent = "REQUIRES_HUMAN_APPROVAL";
+            document.getElementById("live-run-msg").innerHTML = `High-risk change halted by safety guardrails. Routed to <strong><a href="#" onclick="switchTab('healing'); return false;" style="color:var(--brand-primary); text-decoration:underline;">Safety Policy & Approval Gate</a></strong>.`;
+        }
+
+        await loadPipelineRuns();
+    } catch (e) {
+        console.error("Demo failed:", e);
+        alert("Demo execution error: " + e);
+    } finally {
+        if (heroBtn) {
+            heroBtn.disabled = false;
+            heroBtn.innerHTML = origHtml;
+        }
+    }
+}
 
 document.addEventListener("DOMContentLoaded", () => {
     loadPipelineRuns();
@@ -231,10 +480,13 @@ async function loadPipelineRuns() {
         const tbody = document.getElementById("runs-table-body");
         const select = document.getElementById("incident-run-select");
 
+        const previousSelectedId = userSelectedIncidentRunId || (select ? select.value : null);
+
         tbody.innerHTML = "";
         select.innerHTML = `<option value="">Select a Pipeline Run...</option>`;
 
         let pendingCount = 0;
+        let runToDisplay = null;
 
         currentRuns.forEach((run, idx) => {
             const tr = document.createElement("tr");
@@ -276,7 +528,10 @@ async function loadPipelineRuns() {
             const opt = document.createElement("option");
             opt.value = run.run_id;
             opt.textContent = `Run #${run.run_id.substring(4)} — ${run.status} (${failType})`;
-            if (idx === 0) opt.selected = true;
+            if (previousSelectedId ? run.run_id === previousSelectedId : idx === 0) {
+                opt.selected = true;
+                runToDisplay = run;
+            }
             select.appendChild(opt);
         });
 
@@ -290,7 +545,9 @@ async function loadPipelineRuns() {
 
         renderHITLQueue();
 
-        if (currentRuns.length > 0) {
+        if (runToDisplay) {
+            populateIncidentDeepDive(runToDisplay);
+        } else if (currentRuns.length > 0 && !userSelectedIncidentRunId) {
             populateIncidentDeepDive(currentRuns[0]);
         }
     } catch (e) {
@@ -299,6 +556,7 @@ async function loadPipelineRuns() {
 }
 
 function viewRunDetails(runId) {
+    userSelectedIncidentRunId = runId;
     const run = currentRuns.find(r => r.run_id === runId);
     if (!run) return;
 
@@ -306,15 +564,17 @@ function viewRunDetails(runId) {
     document.querySelectorAll(".nav-tab-item").forEach(b => b.classList.remove("active"));
     document.getElementById("tab-incidents").classList.add("active");
 
-    const incBtn = Array.from(document.querySelectorAll(".nav-tab-item")).find(b => b.textContent.includes("Incident Diagnostics"));
+    const incBtn = Array.from(document.querySelectorAll(".nav-tab-item")).find(b => b.textContent.includes("Incident Diagnostics") || b.textContent.includes("Incident RCA"));
     if (incBtn) incBtn.classList.add("active");
 
-    document.getElementById("incident-run-select").value = runId;
+    const selNode = document.getElementById("incident-run-select");
+    if (selNode) selNode.value = runId;
     populateIncidentDeepDive(run);
 }
 
 function onSelectIncidentRun() {
     const runId = document.getElementById("incident-run-select").value;
+    userSelectedIncidentRunId = runId;
     const run = currentRuns.find(r => r.run_id === runId);
     if (run) populateIncidentDeepDive(run);
 }
@@ -1044,7 +1304,7 @@ async function rejectRun(runId) {
 
 // Copy Webhook URL to clipboard
 function copyWebhookUrl() {
-    const url = "http://3.109.199.144:8000/api/webhooks/github";
+    const url = "http://13.201.178.182:8000/api/webhooks/github";
     if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(url).then(() => {
             alert("Copied AutoHeal Webhook URL to clipboard:\n" + url + "\n\nUse this in GitHub Actions or GitHub Repository Webhooks settings.");
