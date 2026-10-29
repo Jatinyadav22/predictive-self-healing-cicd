@@ -27,17 +27,19 @@ jobs:
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pytest pyyaml
+          pip install pytest pyyaml requests
 
       - name: Run Pytest Test Suite
         id: run_tests
         run: |
-          pytest -v --tb=short 2>&1 | tee pytest_output.log
+          set -o pipefail
+          pytest -v --tb=short demo_repo/tests/ 2>&1 | tee pytest_output.log
 
       - name: AutoHeal CI/CD — Webhook Remediation
         if: failure()
         env:
           AUTOHEAL_URL: ${{ secrets.AUTOHEAL_URL || 'http://13.201.178.182:8000' }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COMMIT_SHA: ${{ github.sha }}
           COMMIT_MSG: ${{ github.event.head_commit.message }}
           BRANCH: ${{ github.ref_name }}
@@ -45,61 +47,4 @@ jobs:
           REPO: ${{ github.repository }}
           RUN_ID: ${{ github.run_id }}
         run: |
-          python -c '
-import os, sys, json, urllib.request, subprocess
-
-autoheal_url = os.environ.get("AUTOHEAL_URL", "http://13.201.178.182:8000").rstrip("/")
-webhook_endpoint = f"{autoheal_url}/api/webhooks/github"
-
-log_file = "pytest_output.log"
-failure_logs = ""
-if os.path.exists(log_file):
-    with open(log_file, "r", encoding="utf-8", errors="replace") as f:
-        failure_logs = f.read()
-
-demo_file = "app.py"
-demo_content = ""
-if os.path.exists(demo_file):
-    with open(demo_file, "r", encoding="utf-8", errors="replace") as f:
-        demo_content = f.read()
-
-payload = {
-    "commit_sha": os.environ.get("COMMIT_SHA", "HEAD"),
-    "commit_message": os.environ.get("COMMIT_MSG", "Pipeline failure"),
-    "branch": os.environ.get("BRANCH", "main"),
-    "author": os.environ.get("AUTHOR", "developer"),
-    "repository": os.environ.get("REPO", "demo_repo"),
-    "run_id": os.environ.get("RUN_ID", ""),
-    "run_url": f"https://github.com/{os.environ.get(\"REPO\", \"\")}/actions/runs/{os.environ.get(\"RUN_ID\", \"\")}",
-    "failure_logs": failure_logs,
-    "demo_app_content": demo_content,
-    "lines_added": 15,
-    "lines_deleted": 3,
-    "files_changed": 1
-}
-
-req = urllib.request.Request(
-    webhook_endpoint,
-    data=json.dumps(payload).encode("utf-8"),
-    headers={"Content-Type": "application/json"}
-)
-
-try:
-    with urllib.request.urlopen(req, timeout=120) as resp:
-        res_data = resp.read().decode("utf-8")
-        data = json.loads(res_data)
-        if data.get("status") == "RECOVERED_AUTOMATICALLY" and data.get("healed_content"):
-            with open("app.py", "w", encoding="utf-8") as f:
-                f.write(data["healed_content"])
-            res = subprocess.run(["pytest", "-v", "--tb=short"], capture_output=True, text=True)
-            if res.returncode == 0:
-                subprocess.run(["git", "config", "user.name", "AutoHeal Bot"])
-                subprocess.run(["git", "config", "user.email", "autoheal-bot@users.noreply.github.com"])
-                subprocess.run(["git", "add", "app.py"])
-                subprocess.run(["git", "commit", "-m", f"[AutoHeal] Self-healed commit {os.environ.get(\"COMMIT_SHA\", \"\")[:8]}"])
-                subprocess.run(["git", "push"])
-                print("Self-healed commit pushed successfully!")
-except Exception as e:
-    print(f"AutoHeal webhook notification failed: {e}")
-'
-          exit 1
+          python scripts/ci_webhook_remediation.py

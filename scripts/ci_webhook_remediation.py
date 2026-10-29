@@ -132,7 +132,13 @@ def main():
             subprocess.run(["git", "commit", "-m", commit_title])
 
             # Push back to origin branch using authenticated origin
-            push_res = subprocess.run(["git", "push", "origin", f"HEAD:{branch}"])
+            github_token = os.environ.get("GITHUB_TOKEN")
+            if github_token and repo:
+                push_url = f"https://x-access-token:{github_token}@github.com/{repo}.git"
+                push_res = subprocess.run(["git", "push", push_url, f"HEAD:{branch}"])
+            else:
+                push_res = subprocess.run(["git", "push", "origin", f"HEAD:{branch}"])
+
             if push_res.returncode == 0:
                 print("==================================================================")
                 print(" SUCCESS: Self-healed commit pushed back to GitHub!               ")

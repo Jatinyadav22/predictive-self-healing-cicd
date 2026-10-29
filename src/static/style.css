@@ -1,16 +1,16 @@
 /* AutoHeal CI/CD — Handcrafted Green & Cream Design System */
 
 :root {
-    /* Warm Cream & Ivory Surfaces */
-    --bg-base: #f4f0e6;
+    /* Clean Modern Enterprise Palette */
+    --bg-base: #f8fafc;
     --bg-surface: #ffffff;
-    --bg-elevated: #faf7f0;
-    --bg-input: #fbf9f4;
-    --bg-card-subtle: #f7f3ea;
+    --bg-elevated: #f1f5f9;
+    --bg-input: #ffffff;
+    --bg-card-subtle: #f8fafc;
 
-    /* Warm Earthy Borders */
-    --border-subtle: #e7e1d4;
-    --border-regular: #d7cebe;
+    /* Crisp Enterprise Borders */
+    --border-subtle: #e2e8f0;
+    --border-regular: #cbd5e1;
     --border-focus: #1b4332;
 
     /* Forest Green & Sage Brand Palette */
@@ -169,12 +169,13 @@ body {
    ========================================================================== */
 
 .enterprise-nav {
-    background-color: #fdfcf9;
+    background-color: #ffffff;
     border-bottom: 1px solid var(--border-subtle);
-    padding: 8px 32px;
+    padding: 10px 32px;
     display: flex;
     gap: 8px;
     overflow-x: auto;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
 }
 
 .nav-tab-item {
@@ -193,15 +194,15 @@ body {
 
 .nav-tab-item:hover {
     color: var(--brand-primary);
-    background-color: #f2eee4;
+    background-color: #f1f5f9;
 }
 
 .nav-tab-item.active {
     color: #ffffff;
-    background-color: var(--brand-primary);
-    border-color: var(--brand-primary);
+    background-color: #1b4332;
+    border-color: #1b4332;
     font-weight: 600;
-    box-shadow: 0 1px 3px rgba(27, 67, 50, 0.2);
+    box-shadow: 0 2px 6px rgba(27, 67, 50, 0.25);
 }
 
 /* ==========================================================================
@@ -235,7 +236,111 @@ body {
 }
 
 /* ==========================================================================
-   Panels & Cards (Warm Cream Surfaces)
+   Visual Transformation Showcase (3-Stage Proof)
+   ========================================================================== */
+
+.showcase-container {
+    background: #ffffff;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    padding: 22px 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);
+}
+
+.showcase-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+    align-items: stretch;
+}
+
+@media (max-width: 960px) {
+    .showcase-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.showcase-card {
+    background: #ffffff;
+    border-radius: 10px;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.showcase-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+}
+
+.card-problem {
+    border: 1.5px solid #fecaca;
+    background: linear-gradient(180deg, #fff5f5 0%, #ffffff 100%);
+}
+
+.card-brain {
+    border: 1.5px solid #bfdbfe;
+    background: linear-gradient(180deg, #eff6ff 0%, #ffffff 100%);
+}
+
+.card-healed {
+    border: 1.5px solid #bbf7d0;
+    background: linear-gradient(180deg, #f0fdf4 0%, #ffffff 100%);
+}
+
+.card-header-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px dashed rgba(0, 0, 0, 0.1);
+}
+
+.card-header-label.problem { color: #b91c1c; }
+.card-header-label.brain { color: #1d4ed8; }
+.card-header-label.healed { color: #15803d; }
+
+.code-snippet-box {
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    line-height: 1.5;
+    background: #0f172a;
+    color: #f8fafc;
+    padding: 12px 14px;
+    border-radius: 6px;
+    margin: 10px 0;
+    overflow-x: auto;
+    border: 1px solid #1e293b;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.diff-del {
+    color: #f87171;
+    background: rgba(239, 68, 68, 0.18);
+    display: block;
+    padding: 3px 6px;
+    border-radius: 4px;
+    border-left: 3px solid #ef4444;
+}
+
+.diff-add {
+    color: #4ade80;
+    background: rgba(34, 197, 94, 0.18);
+    display: block;
+    padding: 3px 6px;
+    border-radius: 4px;
+    border-left: 3px solid #22c55e;
+}
+
+/* ==========================================================================
+   Panels & Cards (Clean Surfaces)
    ========================================================================== */
 
 .panel {
@@ -726,4 +831,140 @@ input[type="range"] {
     color: var(--brand-primary);
     border: 1px solid rgba(27, 67, 50, 0.15);
 }
+
+/* ==========================================================================
+   Visual 3-Stage Showcase (Before / AI Diagnosis / After)
+   ========================================================================== */
+
+.showcase-container {
+    background: #ffffff;
+    border: 1px solid var(--border-regular);
+    border-radius: var(--radius-lg);
+    padding: 22px 24px;
+    margin-bottom: 22px;
+    box-shadow: var(--shadow-elevated);
+}
+
+.hero-action-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.btn-hero {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #1b4332 0%, #2d6a4f 100%);
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 700;
+    padding: 10px 22px;
+    border-radius: var(--radius-md);
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(27, 67, 50, 0.25);
+    transition: all 0.2s ease;
+}
+
+.btn-hero:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(27, 67, 50, 0.35);
+    background: linear-gradient(135deg, #133024 0%, #1b4332 100%);
+}
+
+.btn-hero:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.showcase-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+}
+
+@media (max-width: 980px) {
+    .showcase-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.showcase-card {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+}
+
+.showcase-card.card-problem {
+    border-top: 4px solid var(--status-danger);
+    background: #fffafa;
+}
+
+.showcase-card.card-brain {
+    border-top: 4px solid var(--status-info);
+    background: #f8fafc;
+}
+
+.showcase-card.card-healed {
+    border-top: 4px solid var(--status-success);
+    background: #f4fbf6;
+}
+
+.card-header-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.card-header-label.problem { color: var(--status-danger); }
+.card-header-label.brain { color: var(--status-info); }
+.card-header-label.healed { color: #1b4332; }
+
+.code-snippet-box {
+    background: #1e2421;
+    color: #e5e7eb;
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    line-height: 1.5;
+    overflow-x: auto;
+    margin: 8px 0;
+    border: 1px solid #2d3732;
+}
+
+.code-snippet-box .diff-del {
+    color: #f87171;
+    background: rgba(239, 68, 68, 0.15);
+    display: block;
+    margin: 0 -12px;
+    padding: 0 12px;
+}
+
+.code-snippet-box .diff-add {
+    color: #4ade80;
+    background: rgba(74, 222, 128, 0.15);
+    display: block;
+    margin: 0 -12px;
+    padding: 0 12px;
+}
+
 
