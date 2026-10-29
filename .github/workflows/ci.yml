@@ -38,7 +38,7 @@ jobs:
       - name: AutoHeal CI/CD — Webhook Remediation
         if: failure()
         env:
-          AUTOHEAL_URL: ${{ secrets.AUTOHEAL_URL || 'http://13.201.178.182:8000' }}
+          AUTOHEAL_URL: "http://13.201.178.182:8000"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COMMIT_SHA: ${{ github.sha }}
           COMMIT_MSG: ${{ github.event.head_commit.message }}

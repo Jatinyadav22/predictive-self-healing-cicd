@@ -88,7 +88,7 @@ def main():
     )
 
     try:
-        with urllib.request.urlopen(req, timeout=150) as resp:
+        with urllib.request.urlopen(req, timeout=180) as resp:
             res_data = resp.read().decode("utf-8")
             data = json.loads(res_data)
     except Exception as e:
