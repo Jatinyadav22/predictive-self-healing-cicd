@@ -15,7 +15,7 @@ def load_service_config(config_file: Path = CONFIG_PATH) -> dict[str, Any]:
         data = yaml.safe_load(f)
     _ = data["service_name"]
     _ = data["api_timeout_seconds"]
-    return database
+    return data
 
 def calculate_tax(amount: float, state: str = "DEFAULT") -> float:
     if amount < 0:
