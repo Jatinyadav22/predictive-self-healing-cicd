@@ -1,22 +1,24 @@
-name: Order Billing Service CI
+name: CI Pipeline
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main, master ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, master ]
 
 permissions:
   contents: write
 
 jobs:
-  test:
-    name: Build & Run Unit Tests
+  validate:
+    name: Build & Automated Tests
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout Code
+      - name: Checkout Codebase
         uses: actions/checkout@v4
         with:
+          fetch-depth: 2
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Python 3.12
@@ -29,16 +31,16 @@ jobs:
           python -m pip install --upgrade pip
           pip install pytest pyyaml requests
 
-      - name: Run Pytest Test Suite
+      - name: Execute Automated Test Suite
         id: run_tests
         run: |
           set -o pipefail
           pytest -v --tb=short demo_repo/tests/ 2>&1 | tee pytest_output.log
 
-      - name: AutoHeal CI/CD — Webhook Remediation
+      - name: AutoHeal CI/CD — Webhook Ingestion & Autonomous Remediation
         if: failure()
         env:
-          AUTOHEAL_URL: "http://13.201.178.182:8000"
+          AUTOHEAL_URL: ${{ secrets.AUTOHEAL_URL || 'http://3.7.74.195:8000' }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COMMIT_SHA: ${{ github.sha }}
           COMMIT_MSG: ${{ github.event.head_commit.message }}
@@ -46,5 +48,6 @@ jobs:
           AUTHOR: ${{ github.actor }}
           REPO: ${{ github.repository }}
           RUN_ID: ${{ github.run_id }}
+          RUN_NUMBER: ${{ github.run_number }}
         run: |
           python scripts/ci_webhook_remediation.py

@@ -252,6 +252,10 @@ async function runOneClickDemo() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+    const listeningElem = document.getElementById("server-listening-url");
+    if (listeningElem && window.location && window.location.origin && window.location.origin !== "null") {
+        listeningElem.textContent = window.location.origin;
+    }
     loadPipelineRuns();
     loadScenarios();
     loadAuditTrail();
@@ -1304,7 +1308,8 @@ async function rejectRun(runId) {
 
 // Copy Webhook URL to clipboard
 function copyWebhookUrl() {
-    const url = "http://13.201.178.182:8000/api/webhooks/github";
+    const origin = (window.location && window.location.origin && window.location.origin !== "null") ? window.location.origin : "http://3.7.74.195:8000";
+    const url = `${origin}/api/webhooks/github`;
     if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(url).then(() => {
             alert("Copied AutoHeal Webhook URL to clipboard:\n" + url + "\n\nUse this in GitHub Actions or GitHub Repository Webhooks settings.");
