@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoHeal CI/CD Copilot</title>
+    <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+    <div class="popup-container">
+        <!-- Header -->
+        <div class="popup-header">
+            <div class="brand">
+                <span class="status-dot online"></span>
+                <span class="brand-title">AutoHeal CI/CD</span>
+            </div>
+            <span class="version-tag">v2.4 Enterprise</span>
+        </div>
+
+        <!-- Connection Card -->
+        <div class="status-card">
+            <div class="status-row">
+                <span class="status-label">Backend Engine:</span>
+                <span class="status-value highlight" id="server-status">CONNECTING...</span>
+            </div>
+            <div class="status-row">
+                <span class="status-label">Target Cloud Host:</span>
+                <span class="status-value mono" id="server-ip">3.7.74.195:8000</span>
+            </div>
+        </div>
+
+        <!-- Architectural Pipeline Stack -->
+        <div class="specs-grid">
+            <div class="spec-item">
+                <div class="spec-label">Reasoning LLM</div>
+                <div class="spec-val">Qwen 2.5 (3B)</div>
+            </div>
+            <div class="spec-item">
+                <div class="spec-label">Vector RAG</div>
+                <div class="spec-val">ChromaDB (768d)</div>
+            </div>
+            <div class="spec-item">
+                <div class="spec-label">Risk Predictor</div>
+                <div class="spec-val">Random Forest</div>
+            </div>
+            <div class="spec-item">
+                <div class="spec-label">Syntax Safety</div>
+                <div class="spec-val">AST Grammar Check</div>
+            </div>
+        </div>
+
+        <!-- Empirical Metrics -->
+        <div class="metrics-card">
+            <div class="metric-col">
+                <div class="metric-num">19.4s</div>
+                <div class="metric-sub">Mean MTTR</div>
+            </div>
+            <div class="metric-col">
+                <div class="metric-num">94.2%</div>
+                <div class="metric-sub">Repair Rate</div>
+            </div>
+            <div class="metric-col">
+                <div class="metric-num">0.0%</div>
+                <div class="metric-sub">Syntax Regr.</div>
+            </div>
+        </div>
+
+        <!-- Config Section -->
+        <div class="config-box">
+            <label for="backend-input">AutoHeal Server Address:</label>
+            <div class="input-group">
+                <input type="text" id="backend-input" value="http://3.7.74.195:8000">
+                <button id="save-config-btn">Save</button>
+            </div>
+        </div>
+
+        <!-- Action Links -->
+        <div class="action-footer">
+            <button class="btn-primary" id="open-dashboard-btn">
+                <span>🌐 Open Full Web Dashboard</span>
+            </button>
+            <button class="btn-secondary" id="test-connection-btn">
+                <span>⚡ Test Server Health</span>
+            </button>
+        </div>
+    </div>
+    <script src="popup.js"></script>
+</body>
+</html>
