@@ -29,7 +29,7 @@ def apply_discount(total: float, discount_percent: float) -> float:
         raise ValueError("Total cannot be negative")
     if discount_percent < 0 or discount_percent > 100:
         raise ValueError("Discount must be between 0 and 100")
-    discounted_amount = total * (discount_percent / 100.0)
+    discount_amount = total * (discount_percent / 100.0)
     final_price = total - discount_amount
     return round(final_price, 2)
 
