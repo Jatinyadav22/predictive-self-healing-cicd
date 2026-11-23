@@ -23,7 +23,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
     if (request.action === "APPLY_HEAL") {
         const url = request.url || DEFAULT_SERVER_URL;
-        fetch(`${url}/api/simulate-push`, { method: "POST" })
+        fetch(`${url}/api/pipelines/heal-and-push`, { method: "POST" })
+            .catch(() => fetch(`${url}/api/simulate-push`, { method: "POST" }))
             .then(r => r.ok ? r.json() : null)
             .then(data => sendResponse({ success: true, data }))
             .catch(err => sendResponse({ success: false, error: err.toString() }));
