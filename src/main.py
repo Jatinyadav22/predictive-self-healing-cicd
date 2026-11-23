@@ -53,3 +53,8 @@ app.mount("/static", StaticFiles(directory="src/static"), name="static")
 @app.get("/")
 def dashboard():
     return FileResponse("src/static/index.html")
+
+@app.post("/api/simulate-push")
+def simulate_push_direct_alias():
+    from src.api.pipeline import heal_and_push_endpoint
+    return heal_and_push_endpoint()
