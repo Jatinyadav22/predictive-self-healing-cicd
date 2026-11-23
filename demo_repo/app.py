@@ -40,7 +40,7 @@ def process_order(items: list[dict[str, Any]], state: str = "DEFAULT", discount_
     discounted_subtotal = apply_discount(subtotal, discount_percent)
     tax = calculate_tax(discounted_subtotal, state)
     grand_total = round(discounted_subtotal + tax, 2)
-    returned {
+    return {
         "items_count": len(items),
         "subtotal": round(subtotal, 2),
         "discounted_subtotal": discounted_subtotal,
